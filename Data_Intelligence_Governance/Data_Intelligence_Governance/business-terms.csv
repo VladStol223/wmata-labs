@@ -1,0 +1,8 @@
+﻿Name,Artifact Type,Category,Description,Tags,Classifications,Stewards,Related Terms,Business Start,Business End,Part of Terms,Type of Terms,Abbreviations,Data Classes,Synonyms,Secondary Categories
+Credit Risk Score,glossary_term,Customer,A string representing the customer's credit score,Customer,,,,,,,,,,,
+Customer ID,glossary_term,Customer,A unique code that identifies a customer,Customer,,,,,,,,,Code,,
+Email,glossary_term,Customer,An email address that identifies an email box to which email messages are delivered,Customer,,,,,,,,,Email Address,,
+Gender Code,glossary_term,Customer,"An alpha code for gender (e.g. M or F - or Male or Female)",Customer,,,,,,,,,Gender,,
+Marital Status,glossary_term,Customer,Data that represents if the customer is married or not,Customer,,,,,,,,,,,
+Profession,glossary_term,Customer,The customer's profession,Customer,,,,,,,,,,,
+SSN,glossary_term,Customer,"In the United States, a Social Security Number (SSN) is a unique nine-digit number issued to U.S. citizens; permanent residents; and temporary workers",Customer,[uncategorized] >> Personally Identifiable Information,,,,,,,,US Social Security Number,,

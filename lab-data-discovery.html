@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 1 – Data Discovery · WMATA Bootcamp</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1f2328;
+      background: #fff;
+    }
+    a { color: #3b82d4; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav bar ── */
+    .topnav {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #57606a;
+    }
+    .topnav a { color: #3b82d4; }
+    .topnav .sep { color: #d0d7de; }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 40px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* ── Sidebar TOC ── */
+    .toc {
+      position: sticky;
+      top: 24px;
+      font-size: 13px;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #57606a;
+      margin-bottom: 10px;
+    }
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 2px; }
+    .toc a {
+      display: block;
+      padding: 3px 0;
+      color: #57606a;
+      border-left: 2px solid transparent;
+      padding-left: 8px;
+      transition: color 0.15s;
+    }
+    .toc a:hover { color: #3b82d4; text-decoration: none; border-left-color: #3b82d4; }
+    .toc .sub { padding-left: 18px; font-size: 12px; }
+
+    /* ── Article ── */
+    article { min-width: 0; }
+
+    .lab-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #3b82d4;
+      margin-bottom: 8px;
+    }
+    article h1 {
+      font-size: 34px;
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .lead {
+      font-size: 15px;
+      color: #57606a;
+      margin-bottom: 32px;
+      max-width: 640px;
+    }
+    .meta-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .pill {
+      font-size: 12px;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 3px 10px;
+      color: #57606a;
+    }
+
+    article h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 44px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    article h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    article p { margin-bottom: 12px; color: #1f2328; }
+    article ul, article ol {
+      margin: 8px 0 14px 22px;
+    }
+    article li { margin-bottom: 4px; }
+
+    /* callout */
+    .callout {
+      background: #f7f8fa;
+      border-left: 3px solid #3b82d4;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout.warn { border-left-color: #e6a817; }
+    .callout.success { border-left-color: #22a06b; }
+
+    /* step cards */
+    .step-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      background: #f7f8fa;
+    }
+    .step-card h3 { margin-top: 0; }
+
+    /* table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+    th {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      border: 1px solid #e5e7eb;
+      padding: 8px 12px;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafbfc; }
+
+    /* code */
+    code {
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      background: #f3f4f6;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    pre {
+      background: #1f2328;
+      color: #e6edf3;
+      padding: 18px 20px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 16px 0;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    /* image placeholder */
+    .img-placeholder {
+      background: #f7f8fa;
+      border: 1px dashed #d0d7de;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #adb5bd;
+      margin: 10px 0;
+      text-align: center;
+    }
+    .img-ref {
+      font-size: 12px;
+      color: #adb5bd;
+      font-style: italic;
+      margin: 4px 0 12px;
+    }
+    .img-block {
+      margin: 10px 0 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .img-block img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* numbered steps */
+    .steps { counter-reset: step; list-style: none; margin-left: 0; }
+    .steps > li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .steps > li::before {
+      content: counter(step);
+      width: 28px;
+      height: 28px;
+      background: #3b82d4;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .takeaway-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .takeaway-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 16px 18px;
+      background: #f7f8fa;
+    }
+    .takeaway-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #3b82d4;
+    }
+    .takeaway-card p { font-size: 13px; color: #57606a; margin-bottom: 0; }
+
+    footer {
+      border-top: 1px solid #e5e7eb;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #adb5bd;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="index.html">WMATA Bootcamp</a>
+    <span class="sep">/</span>
+    <span>Lab 1 – Data Discovery</span>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="toc">
+      <p class="toc-title">Contents</p>
+      <ul>
+        <li><a href="#intro">Introduction</a></li>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#overview">Lab Overview</a>
+          <ul>
+            <li><a class="sub" href="#data-landscape">Data Landscape</a></li>
+            <li><a class="sub" href="#star-schema">Star Schema</a></li>
+          </ul>
+        </li>
+        <li><a href="#step1">Step 1 – Infrastructure &amp; Data Manager</a></li>
+        <li><a href="#step2">Step 2 – Star Schema</a></li>
+        <li><a href="#step3">Step 3 – Preview Data</a></li>
+        <li><a href="#step4">Step 4 – Query Workspace</a></li>
+        <li><a href="#step5">Step 5 – Business SQL Queries</a></li>
+        <li><a href="#step6">Step 6 – Query History</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+        <li><a href="#practices">Best Practices</a></li>
+      </ul>
+    </aside>
+
+    <!-- Article -->
+    <article>
+      <span class="lab-badge">Lab 1 &nbsp;·&nbsp; 1:00 – 1:20 PM</span>
+      <h1>Data Discovery and Exploration</h1>
+      <p class="lead">Explore FinWin Bank's unified data platform without writing a single line of code. Browse catalogs, understand the star schema, preview tables, and run federated SQL queries across Postgres, Netezza, and Iceberg.</p>
+      <div class="meta-pills">
+        <span class="pill">⏱ 30–45 minutes</span>
+        <span class="pill">👤 Business Analysts, Data Consumers</span>
+        <span class="pill">💻 No SQL experience required</span>
+        <span class="pill">🖥 UI-based</span>
+      </div>
+
+      <!-- ── Introduction ── -->
+      <h2 id="intro">Introduction</h2>
+
+      <h3>What This Lab Demonstrates</h3>
+      <p>This lab demonstrates how business users can explore and analyze data in <strong>watsonx.data</strong> without writing code. You'll learn to navigate the Data Manager interface, understand data relationships, preview tables, and run pre-built SQL queries to answer business questions — all through an intuitive graphical interface.</p>
+
+      <div class="callout">
+        <strong>Business Scenario:</strong> You are a business analyst at <strong>FinWin Bank</strong>, a wealth management firm with over 50 years in banking, brokerage, and wealth management. Your financial advisors currently waste hours navigating multiple disconnected systems: a legacy Netezza data warehouse, a PostgreSQL customer database, and a modern Iceberg lakehouse. Your job today: <strong>explore the unified data platform to understand what data is available, how it connects, and what insights you can extract.</strong>
+      </div>
+
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li><strong>Navigate watsonx.data</strong> — use the Data Manager interface to browse catalogs and schemas</li>
+        <li><strong>Understand data catalogs</strong> — learn the purpose of Postgres, Netezza, Iceberg, and Hive sources</li>
+        <li><strong>Explore table structures</strong> — browse tables, view columns, and understand data types</li>
+        <li><strong>Preview data</strong> — see sample data from any table</li>
+        <li><strong>Use Query Workspace</strong> — generate and run queries with auto-complete</li>
+        <li><strong>Run business queries</strong> — execute pre-built SQL that joins data across sources</li>
+        <li><strong>Review query history</strong> — track and analyze past queries</li>
+      </ul>
+
+      <h3>What You'll Build</h3>
+      <ul>
+        <li>✅ Explored FinWin Bank's data landscape across four catalogs</li>
+        <li>✅ Understood the star schema structure for equity transactions</li>
+        <li>✅ Previewed data from multiple tables</li>
+        <li>✅ Run queries joining Postgres, Netezza, and Iceberg data</li>
+        <li>✅ Answered business questions about customer trading patterns</li>
+      </ul>
+
+      <!-- ── Prerequisites ── -->
+      <h2 id="prerequisites">Prerequisites</h2>
+      <ul>
+        <li>✅ Completed Getting Started Setup Guide Section 1</li>
+        <li>✅ Access to the shared <strong>watsonx.data</strong> environment</li>
+        <li>✅ Basic understanding of business data concepts (no SQL required — queries are provided)</li>
+      </ul>
+
+      <!-- ── Lab Overview ── -->
+      <h2 id="overview">Lab Overview</h2>
+
+      <h3 id="data-landscape">The Data Landscape</h3>
+      <p>FinWin Bank's data lives across four catalogs in watsonx.data. Each serves a different purpose:</p>
+      <table>
+        <tr><th>Catalog</th><th>What it is</th><th>What's in it</th></tr>
+        <tr><td><code>postgres_catalog</code></td><td>Operational database</td><td>Live customer records (<code>customers_table</code>)</td></tr>
+        <tr><td><code>nz_catalog</code></td><td>Legacy data warehouse (Netezza)</td><td>Current-year equity transactions (2025)</td></tr>
+        <tr><td><code>iceberg_data</code></td><td>Modern lakehouse</td><td>Historical transactions (2019–2024), accounts, holdings</td></tr>
+        <tr><td><code>hive_catalog</code></td><td>Raw data lake</td><td>Source files before processing</td></tr>
+      </table>
+      <p>The power of watsonx.data is that you can query across all of these from a single interface — a financial advisor can look up a customer in Postgres, check their trading history in Iceberg, and see current-year activity in Netezza, all in one place.</p>
+
+      <h3 id="star-schema">Star Schema Overview</h3>
+      <p>Your Iceberg schema contains a <strong>star schema</strong> — a common analytics pattern where a central <strong>fact table</strong> records business events, surrounded by <strong>dimension tables</strong> that provide context.</p>
+      <table>
+        <tr><th>Table</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>fact_transactions</code></td><td>Fact</td><td>Core trading data — every stock trade made by FinWin clients</td></tr>
+        <tr><td><code>dim_account</code></td><td>Dimension</td><td>Account details (type, risk level, balance, experience)</td></tr>
+        <tr><td><code>dim_stock</code></td><td>Dimension</td><td>Stock info (ticker, sector, market cap)</td></tr>
+        <tr><td><code>dim_exchange</code></td><td>Dimension</td><td>Exchange details (NYSE, NASDAQ, country, timezone)</td></tr>
+        <tr><td><code>dim_date</code></td><td>Dimension</td><td>Date breakdowns (year, quarter, month, week, holiday flags)</td></tr>
+        <tr><td><code>customers_table</code></td><td>Reference (Postgres)</td><td>Live customer records in a separate catalog</td></tr>
+      </table>
+
+      <h3>Lab Workflow</h3>
+      <p>Explore Infrastructure → Understand Star Schema → Preview Data → Query Workspace → Business Queries → Review History</p>
+
+      <!-- ── Step 1 ── -->
+      <h2 id="step1">Step 1 – Exploring the Infrastructure &amp; Data Manager</h2>
+
+      <h3>1.1 Access watsonx.data</h3>
+      <ol class="steps">
+        <li><div>From the <a href="https://cloud.ibm.com/resources" target="_blank">IBM Cloud Resource List</a>, open your <strong>watsonx.data</strong> instance (under Databases, labeled <code>wxdata-</code>)</div></li>
+        <li><div>Click the <strong>hamburger menu (☰)</strong> → <strong>Infrastructure manager</strong>
+          <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/infra-manager-nav.png" alt="Infrastructure Manager Navigation"></div>
+        </div></li>
+      </ol>
+
+      <h3>1.2 Browse Data Sources</h3>
+      <ol class="steps">
+        <li><div>You'll observe all Services, Engines, Catalogs, Storage and Data Sources. Click <strong>Postgres</strong> Data Source to see its database details.
+         <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/browse-data-sources.png" alt="Browse Data Sources"></div>
+        </div></li>
+      </ol>
+
+      <h3>1.3 Browse Catalogs</h3>
+      <ol class="steps">
+        <li><div>Click the <strong>hamburger menu (☰)</strong> → <strong>Data manager</strong>
+         <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/data-manager-nav.png" alt="Data Manager Navigation"></div>
+        </div></li>
+        <li><div>You'll see the four catalogs listed. Click <strong>iceberg_data</strong> to expand it and find your schema (e.g., <code>netezza_offload_&lt;initials&gt;</code>)
+         <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/browse-catalogs.png" alt="Browse Catalogs"></div>
+        </div></li>
+      </ol>
+
+      <h3>1.4 Explore Your Schema</h3>
+      <ol class="steps">
+        <li><div>Click on your schema to see the tables inside:
+          <ul>
+            <li><code>fact_transactions</code> — the core trading data</li>
+            <li><code>dim_account</code> — account information</li>
+            <li><code>dim_stock</code> — stock details</li>
+            <li><code>dim_exchange</code> — exchange information</li>
+            <li><code>dim_date</code> — date dimensions</li>
+          </ul>
+        </div></li>
+        <li><div>Click on any table name to see its structure: column names, data types, and descriptions (if available)</div></li>
+      </ol>
+
+      <!-- ── Step 2 ── -->
+      <h2 id="step2">Step 2 – Understanding the Star Schema</h2>
+      <p>Navigate to your schema under <strong>iceberg_data</strong> and explore these tables:</p>
+
+      <h3>Fact Table: <code>fact_transactions</code></h3>
+      <p>The core of the dataset — every stock trade made by FinWin Bank clients.</p>
+      <table>
+        <tr><th>Column</th><th>What it means</th></tr>
+        <tr><td><code>transaction_id</code></td><td>Unique trade ID</td></tr>
+        <tr><td><code>account_id</code></td><td>Who traded (→ dim_account)</td></tr>
+        <tr><td><code>stock_id</code></td><td>What was traded (→ dim_stock)</td></tr>
+        <tr><td><code>exchange_id</code></td><td>Where it traded (→ dim_exchange)</td></tr>
+        <tr><td><code>date_id</code></td><td>When it happened (→ dim_date)</td></tr>
+        <tr><td><code>order_type</code></td><td>BUY or SELL</td></tr>
+        <tr><td><code>quantity</code></td><td>Number of shares</td></tr>
+        <tr><td><code>price</code></td><td>Price per share</td></tr>
+        <tr><td><code>total_value</code></td><td>quantity × price</td></tr>
+      </table>
+
+      <h3>Dimension Tables</h3>
+      <p>Click on each table to see its columns. Use the <strong>Preview</strong> button to see sample data.</p>
+      <table>
+        <tr><th>Table</th><th>Key columns</th></tr>
+        <tr><td><strong>dim_account</strong></td><td>Account type (Retail/Institutional/Margin), status, risk level (Low/Medium/High), balance, trading experience</td></tr>
+        <tr><td><strong>dim_stock</strong></td><td>100 stocks with ticker symbol, company name, sector, industry, market cap</td></tr>
+        <tr><td><strong>dim_exchange</strong></td><td>Exchange name (NYSE, NASDAQ, SGX…), country, timezone, currency</td></tr>
+        <tr><td><strong>dim_date</strong></td><td>Year, quarter, month, week, day of week, weekend flag, holiday indicators</td></tr>
+      </table>
+
+      <h3>Customer Data (Different Catalog)</h3>
+      <p>Navigate to <strong>postgres_catalog</strong> → <strong>bankdemo</strong> → <strong>customers_table</strong> to see live customer records: names, contact info, location, date of birth, account opening date.</p>
+      <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/customer-table-view.png" alt="Customer Table View"></div>
+      <div class="callout">This table lives in Postgres (the operational database) but watsonx.data lets you query it alongside Iceberg and Netezza data — that's federation in action.</div>
+
+      <!-- ── Step 3 ── -->
+      <h2 id="step3">Step 3 – Previewing Data</h2>
+      <p>For any table in Data Manager:</p>
+      <ol class="steps">
+        <li><div>Click the table name to see its columns and types</div></li>
+        <li><div>Click <strong>Preview</strong> or <strong>Sample Data</strong> to see actual rows
+         <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/preview-customer-data.png" alt="Preview Customer Data"></div>
+        </div></li>
+      </ol>
+
+      <h3>Try These Previews</h3>
+      <div class="step-card">
+        <h3>Preview dim_stock</h3>
+        <p>You'll see familiar names like IBM, AMZN, BAC, and HD. Notice how each stock has a sector and market cap — this lets you analyze trading patterns by industry.</p>
+      </div>
+      <div class="step-card">
+        <h3>Preview dim_account</h3>
+        <p>See different account types (Retail, Institutional, Margin), risk levels, trading experience, account balances, and status.</p>
+      </div>
+      <div class="step-card">
+        <h3>Preview customers_table</h3>
+        <p>See customer names, locations, and the <code>customer_id</code> that links to accounts. Observe demographic information.</p>
+      </div>
+
+      <!-- ── Step 4 ── -->
+      <h2 id="step4">Step 4 – Using the Query Workspace</h2>
+
+      <h3>4.1 Access Query Workspace</h3>
+      <ol class="steps">
+        <li><div>From the hamburger menu (☰), select <strong>Query workspace</strong></div></li>
+        <li><div>In the left panel, navigate to any table (e.g., <code>dim_stock</code>)</div></li>
+      </ol>
+
+      <h3>4.2 Generate a Query</h3>
+      <ol class="steps">
+        <li><div>Click the <strong>three dots (⋮)</strong> next to the table → <strong>Generate SELECT</strong></div></li>
+        <li><div>A query appears in the editor. Click <strong>Run on presto-01</strong> to execute it.
+         <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/query-workspace.png" alt="Query Workspace"></div>
+        </div></li>
+      </ol>
+
+      <h3>4.3 View Results</h3>
+      <p>Results appear below with column headers, data rows, row count, and execution time.</p>
+      <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/query-results.png" alt="Query Results"></div>
+
+      <h3>Tips for Query Workspace</h3>
+      <ul>
+        <li><strong>Auto-complete:</strong> start typing table or column names and press Tab</li>
+        <li><strong>Multiple queries:</strong> separate queries with semicolons</li>
+        <li><strong>Save queries:</strong> use the Save button to keep frequently used queries</li>
+        <li><strong>Export results:</strong> download results as CSV for further analysis</li>
+      </ul>
+
+      <!-- ── Step 5 ── -->
+      <h2 id="step5">Step 5 – Business Questions with SQL</h2>
+      <p>Below are five business questions a FinWin Bank analyst might ask, each answered by a SQL query that <strong>joins across multiple tables</strong>. Copy each query into the Query Workspace and run it.</p>
+      <div class="callout warn">Replace <code>&lt;SCHEMA&gt;</code> with your Iceberg schema name (e.g., <code>netezza_offload_viv</code>).</div>
+
+      <h3>5.1 Customer Activity — Which customers traded the most last year?</h3>
+      <p>Joins transactions → accounts → customers (across Iceberg and Postgres) to find the most active traders.</p>
+      <pre><code>SELECT
+    c.first_name,
+    c.last_name,
+    c.city,
+    c.state,
+    da.account_type,
+    COUNT(ft.transaction_id) AS total_trades,
+    SUM(ft.total_value) AS total_value
+FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_account da
+    ON ft.account_id = da.account_id
+JOIN postgres_catalog.bankdemo.customers_table c
+    ON da.account_id = c.customer_id
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_date dd
+    ON ft.date_id = dd.date_id
+WHERE dd.year = 2024
+GROUP BY c.first_name, c.last_name, c.city, c.state, da.account_type
+ORDER BY total_value DESC
+LIMIT 10;</code></pre>
+      <p><strong>Returns:</strong> Top 10 customers by trading value in 2024, with names, locations, account types, trade counts, and total values.</p>
+
+      <h3>5.2 Stock Performance — Average trade price by sector?</h3>
+      <p>Joins transactions → stocks to compare average prices across industry sectors.</p>
+      <pre><code>SELECT
+    ds.sector,
+    COUNT(ft.transaction_id) AS trade_count,
+    ROUND(AVG(ft.price), 2) AS avg_price,
+    ROUND(SUM(ft.total_value), 2) AS total_volume
+FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_stock ds
+    ON ft.stock_id = ds.stock_id
+GROUP BY ds.sector
+ORDER BY total_volume DESC;</code></pre>
+      <p><strong>Returns:</strong> Trading activity by sector (Technology, Finance, Healthcare…), average stock price, and total trading volume per sector.</p>
+
+      <h3>5.3 Exchange Analysis — Trading volume by exchange and year?</h3>
+      <p>Joins transactions → exchanges → dates to show activity across global exchanges over time.</p>
+      <pre><code>SELECT
+    de.exchange_name,
+    de.country,
+    dd.year,
+    COUNT(ft.transaction_id) AS trade_count,
+    ROUND(SUM(ft.total_value), 2) AS total_volume
+FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_exchange de
+    ON ft.exchange_id = de.exchange_id
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_date dd
+    ON ft.date_id = dd.date_id
+GROUP BY de.exchange_name, de.country, dd.year
+ORDER BY dd.year, total_volume DESC;</code></pre>
+      <p><strong>Returns:</strong> Trading volume by exchange (NYSE, NASDAQ…), geographic distribution, year-over-year trends.</p>
+
+      <h3>5.4 Risk Profile — Trading patterns by account risk level?</h3>
+      <p>Joins transactions → accounts → dates to compare how Low, Medium, and High-risk accounts trade differently.</p>
+      <pre><code>SELECT
+    da.risk_level,
+    da.account_type,
+    dd.year,
+    COUNT(ft.transaction_id) AS trade_count,
+    ROUND(AVG(ft.quantity), 0) AS avg_shares_per_trade,
+    ROUND(AVG(ft.total_value), 2) AS avg_trade_value
+FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_account da
+    ON ft.account_id = da.account_id
+JOIN iceberg_data.&lt;SCHEMA&gt;.dim_date dd
+    ON ft.date_id = dd.date_id
+GROUP BY da.risk_level, da.account_type, dd.year
+ORDER BY dd.year, da.risk_level;</code></pre>
+      <p><strong>Returns:</strong> Trading behavior by risk level, differences between account types, average shares and trade values, trends over time.</p>
+
+      <h3>5.5 Cross-Source Federation — Combine current and historical data</h3>
+      <p>This query spans <strong>both Iceberg and Netezza</strong> to find the top 10 accounts by total trading value across all years — demonstrating watsonx.data's federation capability.</p>
+      <pre><code>SELECT
+    da.account_id,
+    da.account_type,
+    da.risk_level,
+    dd.year,
+    SUM(ft.total_value) AS total_value
+FROM (
+    SELECT account_id, date_id, total_value
+    FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions
+    UNION ALL
+    SELECT account_id, date_id, total_value
+    FROM nz_catalog.equity_transactions_ly.fact_transactions
+) ft
+JOIN (
+    SELECT account_id, account_type, risk_level
+    FROM iceberg_data.&lt;SCHEMA&gt;.dim_account
+    UNION ALL
+    SELECT account_id, account_type, risk_level
+    FROM nz_catalog.equity_transactions_ly.dim_account
+) da ON ft.account_id = da.account_id
+JOIN (
+    SELECT date_id, year
+    FROM iceberg_data.&lt;SCHEMA&gt;.dim_date
+    UNION ALL
+    SELECT date_id, year
+    FROM nz_catalog.equity_transactions_ly.dim_date
+) dd ON ft.date_id = dd.date_id
+GROUP BY da.account_id, da.account_type, da.risk_level, dd.year
+ORDER BY total_value DESC
+LIMIT 10;</code></pre>
+      <p><strong>Returns:</strong> Top accounts across ALL years (2019–2025), combining historical Iceberg data with current-year Netezza data. Demonstrates data federation across catalogs.</p>
+
+      <!-- ── Step 6 ── -->
+      <h2 id="step6">Step 6 – Reviewing Query History</h2>
+
+      <h3>6.1 Access Query History</h3>
+      <ol class="steps">
+        <li><div>Hamburger menu (☰) → <strong>Query history</strong></div></li>
+        <li><div>Each entry shows: query text, who ran it, status (Success/Failed), duration, timestamp.
+         <div class="img-block"><img src="Data_Discovery/Data_Discovery/attachments/query-history.png" alt="Query History"></div>
+        </div></li>
+      </ol>
+
+      <h3>6.2 Analyze Execution Plans</h3>
+      <ol class="steps">
+        <li><div>Click any query to see its execution plan — useful for understanding which data sources were accessed, how tables were joined, query performance metrics, and resource usage.</div></li>
+      </ol>
+
+      <h3>Why Query History Matters</h3>
+      <ul>
+        <li><strong>Audit trail</strong> — track who queried what data and when</li>
+        <li><strong>Performance analysis</strong> — identify slow queries</li>
+        <li><strong>Reuse queries</strong> — find and re-run previous queries</li>
+        <li><strong>Troubleshooting</strong> — debug failed queries</li>
+        <li><strong>Learning</strong> — see how others structure their queries</li>
+      </ul>
+
+      <!-- ── Key Takeaways ── -->
+      <h2 id="takeaways">Key Takeaways</h2>
+      <div class="takeaway-grid">
+        <div class="takeaway-card">
+          <h4>✅ Data Federation</h4>
+          <p>Postgres holds live customer data. Netezza holds current-year transactions. Iceberg holds optimized historical data. Presto federates queries across all of them.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Star Schema</h4>
+          <p>The star schema (fact + dimension tables) lets you slice trading data by customer demographics, stock characteristics, exchange locations, and time periods.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Key Skills</h4>
+          <p>Navigate Data Manager · Browse catalogs and schemas · Preview data · Use Query Workspace · Join data across sources · Review query history.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Business Value</h4>
+          <p>Self-service analytics · Unified view of all data sources · Fast insights without IT · Transparent data availability · Seamless federation.</p>
+        </div>
+      </div>
+
+      <!-- ── Best Practices ── -->
+      <h2 id="practices">Best Practices</h2>
+
+      <h3>Exploring Data Effectively</h3>
+      <table>
+        <tr><th>✅ DO</th><th>❌ DON'T</th></tr>
+        <tr><td>Start broad, then narrow — catalogs → schemas → tables</td><td>Query large tables without LIMIT clauses</td></tr>
+        <tr><td>Preview before querying to understand data structure</td><td>Join tables without understanding relationships</td></tr>
+        <tr><td>Check data types before joining</td><td>Ignore data types when filtering</td></tr>
+        <tr><td>Use auto-complete to reduce typos</td><td>Forget to check query history for errors</td></tr>
+        <tr><td>Save useful queries for reuse</td><td>Run queries without previewing first</td></tr>
+      </table>
+
+      <h3>Writing Effective Queries</h3>
+      <table>
+        <tr><th>✅ DO</th><th>❌ DON'T</th></tr>
+        <tr><td>Use meaningful aliases: <code>ft</code>, <code>da</code>, <code>ds</code></td><td>Use <code>SELECT *</code> in production</td></tr>
+        <tr><td>Add LIMIT when exploring large datasets</td><td>Forget WHERE clauses on large tables</td></tr>
+        <tr><td>Format for readability — indent joins and conditions</td><td>Join without understanding cardinality</td></tr>
+        <tr><td>Build queries incrementally and test each step</td><td>Ignore query performance</td></tr>
+      </table>
+
+      <div class="callout success" style="margin-top:32px;">
+        <strong>Next lab:</strong> Now that you've explored the data manually, head to <a href="lab-nl2sql.html">Lab 2 – Natural Language to SQL</a> to let an AI agent answer these same questions in plain English — no SQL needed.
+      </div>
+
+    </article>
+  </div>
+
+  <footer>Made with IBM Bob</footer>
+
+</body>
+</html>

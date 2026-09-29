@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 2 – Natural Language to SQL · WMATA Bootcamp</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1f2328;
+      background: #fff;
+    }
+    a { color: #3b82d4; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topnav {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #57606a;
+    }
+    .topnav a { color: #3b82d4; }
+    .topnav .sep { color: #d0d7de; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 40px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      font-size: 13px;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #57606a;
+      margin-bottom: 10px;
+    }
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 2px; }
+    .toc a {
+      display: block;
+      padding: 3px 0;
+      color: #57606a;
+      border-left: 2px solid transparent;
+      padding-left: 8px;
+    }
+    .toc a:hover { color: #3b82d4; text-decoration: none; border-left-color: #3b82d4; }
+    .toc .sub { padding-left: 18px; font-size: 12px; }
+
+    article { min-width: 0; }
+
+    .lab-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #3b82d4;
+      margin-bottom: 8px;
+    }
+    article h1 {
+      font-size: 34px;
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .lead {
+      font-size: 15px;
+      color: #57606a;
+      margin-bottom: 32px;
+      max-width: 640px;
+    }
+    .meta-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .pill {
+      font-size: 12px;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 3px 10px;
+      color: #57606a;
+    }
+
+    article h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 44px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    article h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    article h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+    article p { margin-bottom: 12px; }
+    article ul, article ol { margin: 8px 0 14px 22px; }
+    article li { margin-bottom: 4px; }
+
+    .callout {
+      background: #f7f8fa;
+      border-left: 3px solid #3b82d4;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout.warn { border-left-color: #e6a817; }
+    .callout.success { border-left-color: #22a06b; }
+
+    .step-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      background: #f7f8fa;
+    }
+    .step-card h3 { margin-top: 0; }
+    .step-card h4 { margin-top: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+    th {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      border: 1px solid #e5e7eb;
+      padding: 8px 12px;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafbfc; }
+
+    code {
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      background: #f3f4f6;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    pre {
+      background: #1f2328;
+      color: #e6edf3;
+      padding: 18px 20px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 16px 0;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    .arch-box {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 16px 24px;
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      color: #57606a;
+      line-height: 2;
+      margin: 16px 0;
+    }
+
+    .steps { counter-reset: step; list-style: none; margin-left: 0; }
+    .steps > li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .steps > li::before {
+      content: counter(step);
+      width: 28px;
+      height: 28px;
+      background: #3b82d4;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .img-ref {
+      font-size: 12px;
+      color: #adb5bd;
+      font-style: italic;
+      margin: 4px 0 0;
+    }
+    .img-block {
+      margin: 10px 0 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .img-block img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .test-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      margin: 16px 0;
+      overflow: hidden;
+    }
+    .test-card-header {
+      background: #f7f8fa;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .test-card-body {
+      padding: 14px 18px;
+      font-size: 14px;
+    }
+    .test-card-body .q {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .test-card-body .expected {
+      font-size: 13px;
+      color: #57606a;
+      margin-top: 8px;
+    }
+
+    .takeaway-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .takeaway-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 16px 18px;
+      background: #f7f8fa;
+    }
+    .takeaway-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #3b82d4;
+    }
+    .takeaway-card p { font-size: 13px; color: #57606a; margin-bottom: 0; }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .tool-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px 14px;
+      background: #f7f8fa;
+    }
+    .tool-item code { display: block; font-weight: 600; margin-bottom: 4px; background: none; padding: 0; }
+    .tool-item p { font-size: 12px; color: #57606a; margin: 0; }
+
+    footer {
+      border-top: 1px solid #e5e7eb;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #adb5bd;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="index.html">WMATA Bootcamp</a>
+    <span class="sep">/</span>
+    <span>Lab 2 – Natural Language to SQL</span>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="toc">
+      <p class="toc-title">Contents</p>
+      <ul>
+        <li><a href="#intro">1. Introduction</a></li>
+        <li><a href="#prereqs">2. Prerequisites</a></li>
+        <li><a href="#overview">3. Lab Overview</a></li>
+        <li><a href="#create-agent">4. Create the NL2SQL Agent</a>
+          <ul>
+            <li><a class="sub" href="#step41">4.1 Access Orchestrate</a></li>
+            <li><a class="sub" href="#step42">4.2 Configure Connection</a></li>
+            <li><a class="sub" href="#step43">4.3 Create Agent</a></li>
+            <li><a class="sub" href="#step44">4.4 Add MCP Tools</a></li>
+            <li><a class="sub" href="#step45">4.5 Configure Behavior</a></li>
+            <li><a class="sub" href="#step46">4.6 Add Guidelines</a></li>
+          </ul>
+        </li>
+        <li><a href="#test">5. Test the Agent</a>
+          <ul>
+            <li><a class="sub" href="#step51">5.1 Preview Mode</a></li>
+            <li><a class="sub" href="#step52">5.2 Deploy</a></li>
+            <li><a class="sub" href="#step53">5.3 Production Testing</a></li>
+          </ul>
+        </li>
+        <li><a href="#use-cases">6. Business Use Cases</a></li>
+        <li><a href="#troubleshooting">8. Troubleshooting</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+      </ul>
+    </aside>
+
+    <!-- Article -->
+    <article>
+      <span class="lab-badge">Lab 2 &nbsp;·&nbsp; 1:20 – 2:05 PM</span>
+      <h1>Natural Language to SQL Agent</h1>
+      <p class="lead">Build an AI-powered agent in watsonx Orchestrate that converts plain-English questions into SQL queries, executes them against watsonx.data, and returns formatted results — no SQL expertise required.</p>
+      <div class="meta-pills">
+        <span class="pill">⏱ 45–60 minutes</span>
+        <span class="pill">🤖 watsonx Orchestrate</span>
+        <span class="pill">💻 No coding required</span>
+        <span class="pill">🔗 UI-based</span>
+      </div>
+
+      <!-- ── 1. Introduction ── -->
+      <h2 id="intro">1. Introduction</h2>
+      <p>In this lab, you'll create a <strong>Natural Language to SQL (NL2SQL)</strong> agent that understands natural language questions and automatically converts them into SQL queries to retrieve data from watsonx.data. Unlike traditional methods that require SQL knowledge, this agent allows business users to ask questions in plain English and get accurate answers from your data lakehouse.</p>
+
+      <h3>What This Lab Demonstrates</h3>
+      <ul>
+        <li><strong>No coding required</strong> — build the agent entirely through the watsonx Orchestrate UI</li>
+        <li><strong>Direct data access</strong> — connects directly to watsonx.data without intermediate deployments</li>
+        <li><strong>Business-friendly</strong> — designed for analysts, managers, and non-technical users</li>
+        <li><strong>Intelligent query generation</strong> — automatically converts questions to SQL</li>
+        <li><strong>Multi-table joins</strong> — handles complex queries across multiple data sources</li>
+      </ul>
+
+      <h3>What You'll Build</h3>
+      <p>An intelligent agent that:</p>
+      <ol>
+        <li>Accepts natural language questions from users</li>
+        <li>Analyzes the question to understand intent</li>
+        <li>Generates appropriate SQL queries</li>
+        <li>Executes queries against watsonx.data</li>
+        <li>Generates insights and suggests relevant follow-up questions</li>
+        <li>Formats and presents results in a user-friendly way</li>
+      </ol>
+
+      <h3>Architecture</h3>
+      <div class="arch-box">
+        User Question (Natural Language)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+        watsonx Orchestrate Agent<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+        LLM analyzes question &rarr; Generates SQL<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+        SQL Query Tool &rarr; watsonx.data (Presto)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+        Query Results &rarr; Formatted Response<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+        User receives answer
+      </div>
+
+      <!-- ── 2. Prerequisites ── -->
+      <h2 id="prereqs">2. Prerequisites</h2>
+      <ul>
+        <li>✅ Completed Getting Started Setup Guide Section 1</li>
+        <li>✅ Access to <strong>watsonx Orchestrate</strong> instance</li>
+        <li>✅ Access to <strong>watsonx.data</strong> instance with data loaded</li>
+        <li>✅ Your <code>env.txt</code> file with connection credentials (from <code>student_creds/</code>)</li>
+        <li>✅ Instructor-provided custom <code>sql_agent_behavior.txt</code> file in the <code>assets/</code> folder</li>
+        <li>✅ Basic understanding of the data structure — see <a href="lab-data-discovery.html">Data Discovery Lab</a></li>
+      </ul>
+
+      <!-- ── 3. Lab Overview ── -->
+      <h2 id="overview">3. Lab Overview</h2>
+      <h3>Data Sources Used</h3>
+      <table>
+        <tr><th>Table</th><th>Description</th></tr>
+        <tr><td><code>postgres_catalog.bankdemo.customers_table</code></td><td>Customer information</td></tr>
+        <tr><td><code>iceberg_data.clients_schema_xxx.accounts_table</code></td><td>Account details</td></tr>
+        <tr><td><code>iceberg_data.clients_schema_xxx.holdings_table</code></td><td>Investment holdings</td></tr>
+      </table>
+
+      <h3>Lab Steps at a Glance</h3>
+      <ol>
+        <li>Access watsonx Orchestrate</li>
+        <li>Configure watsonx.data connection (MCP server)</li>
+        <li>Create New Agent</li>
+        <li>Add Tools (watsonx.data MCP server tools)</li>
+        <li>Configure Behavior (agent instructions)</li>
+        <li>Add Guidelines (rules and boundaries)</li>
+        <li>Test in Preview mode</li>
+        <li>Deploy Agent</li>
+        <li>Production Testing</li>
+      </ol>
+
+      <!-- ── 4. Create Agent ── -->
+      <h2 id="create-agent">4. Create NL2SQL Agent in watsonx Orchestrate</h2>
+
+      <h3 id="step41">4.1 Access watsonx Orchestrate</h3>
+      <ol class="steps">
+        <li><div>
+          Go to <a href="https://cloud.ibm.com/resources" target="_blank">IBM Cloud Resources</a>
+        </div></li>
+        <li><div>
+          Under <strong>AI / Machine Learning</strong>, find your <strong>watsonx Orchestrate</strong> instance
+        </div></li>
+        <li><div>
+          Click <strong>Launch watsonx Orchestrate</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/Launch_Orchestrate.png" alt="Launch Orchestrate"></div>
+        </div></li>
+      </ol>
+
+      <h3 id="step42">4.2 Configure watsonx.data Connection</h3>
+      <p>Before the agent can query data, it needs a connection to watsonx.data.</p>
+      <div class="callout">
+        Follow the <strong>watsonx.data remote MCP Server connection</strong> guide provided in the <code>watsonxdata_connection.md</code> file in the lab folder. You will need the <code>WXDATA_MCP_ENDPOINT</code> value from your <code>env.txt</code> credentials file.
+      </div>
+
+      <h3 id="step43">4.3 Create New Agent</h3>
+      <ol class="steps">
+        <li><div>
+          From the hamburger menu (☰), select <strong>Build</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/build.png" alt="Build Interface"></div>
+        </div></li>
+        <li><div>
+          Click <strong>Create Agent</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/CreateAgent-1.png" alt="Create Agent"></div>
+        </div></li>
+        <li><div>
+          Select <strong>Create from Scratch</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/create-from-scratch.png" alt="Create from Scratch"></div>
+        </div></li>
+        <li><div>
+          Configure basic information:
+          <ul>
+            <li><strong>Name:</strong> <code>NL2SQL Agent - [Your Name]</code></li>
+            <li><strong>Description:</strong> <code>Natural language interface to query watsonx.data. Ask questions about customers, accounts, holdings, and transactions in plain English - no SQL required.</code></li>
+          </ul>
+          Click <strong>Create</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/CreateAgent-3.png" alt="Configure Agent"></div>
+        </div></li>
+        <li><div>
+          Click <strong>Profile</strong> and create a Welcome Message:<br>
+          <code>Welcome to Data Insights! Ask me about customers, accounts, holdings, or transactions</code>
+        </div></li>
+        <li><div>
+          Add 3 Quick Start Prompts:
+          <pre><code>How many customers do we have?
+Show me 5 IBM holdings
+What's the total balance across all accounts?</code></pre>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/welcome_prompt.png" alt="Welcome Prompt"></div>
+        </div></li>
+        <li><div>
+          Select <strong>React</strong> as Agent Style. ReAct (Reasoning + Acting) is the right choice because this agent requires multi-step reasoning, tool orchestration, dynamic decision making, and iterative refinement.
+         <div class="img-block"><img src="NL2SQL_Business/attachments/agent_style.png" alt="Agent Style"></div>
+        </div></li>
+      </ol>
+
+      <h3 id="step44">4.4 Add watsonx.data MCP Server Tools</h3>
+      <p>These tools let the agent execute SQL queries against watsonx.data.</p>
+
+      <ol class="steps">
+        <li><div>
+          In the <strong>Toolset</strong> section, under <strong>Tools</strong>, click <strong>Add tool</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/add_tool.png" alt="Add Tool"></div>
+        </div></li>
+        <li><div>
+          Select <strong>MCP server</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/mcp_server.png" alt="MCP Server"></div>
+        </div></li>
+        <li><div>
+          Click <strong>Add MCP Server</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/add_mcp_server.png" alt="Add MCP Server"></div>
+        </div></li>
+        <li><div>
+          Select <code>Remote MCP server</code> and click <strong>Next</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/add_remote_mcp_server.png" alt="Add Remote MCP Server"></div>
+        </div></li>
+        <li><div>
+          Fill in the server details:
+          <table>
+            <tr><th>Field</th><th>Value</th></tr>
+            <tr><td>Server name</td><td><code>watsonx-data-mcp-server</code></td></tr>
+            <tr><td>MCP Server URL</td><td><code>https://&lt;console-host&gt;/api/v1/watsonxdata/mcp</code> (use <code>WXDATA_MCP_ENDPOINT</code> from env.txt)</td></tr>
+            <tr><td>Transport type</td><td><code>Streamable HTTP</code></td></tr>
+            <tr><td>Select Connection</td><td>The connection created in step 4.2</td></tr>
+          </table>
+          Click <strong>Connect</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/add_mcp_server_details.png" alt="MCP Server Details"></div>
+          <div class="callout warn">If connection fails: confirm authentication in your Connection settings and verify <code>WXDATA_MCP_ENDPOINT</code> is accurate.</div>
+        </div></li>
+        <li><div>
+          In <strong>Add tools and manage MCP servers</strong>, search for and add each of these tools:
+          <div class="tools-grid">
+            <div class="tool-item"><code>watsonxdata-list-engines</code><p>List available Presto and Spark compute engines</p></div>
+            <div class="tool-item"><code>watsonxdata-list-schemas</code><p>List database schemas in a catalog</p></div>
+            <div class="tool-item"><code>watsonxdata-list-tables</code><p>List tables in a schema</p></div>
+            <div class="tool-item"><code>watsonxdata-describe-table</code><p>Get detailed schema and metadata for a table</p></div>
+            <div class="tool-item"><code>watsonxdata-execute-select</code><p>Execute read-only SELECT queries against watsonx.data</p></div>
+          </div>
+          Select each tool and click <strong>Add to agent</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/add_tools_mcp_server.png" alt="Add Tools from MCP Server"></div>
+        </div></li>
+      </ol>
+
+      <h3 id="step45">4.5 Configure Agent Behavior</h3>
+      <ol class="steps">
+        <li><div>
+          Verify that <code>sql_agent_behavior.txt</code> exists in the <code>assets/</code> folder with correct catalog values from your <code>env.txt</code> file. If not, follow the <em>Create Behavior file</em> guide in <code>automation/behavior/README.md</code>.
+        </div></li>
+        <li><div>
+          Paste the contents of <code>sql_agent_behavior.txt</code> into <strong>Behavior → Instructions</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/behavior.png" alt="Agent Behavior"></div>
+        </div></li>
+      </ol>
+
+      <h3 id="step46">4.6 Add Guidelines</h3>
+      <p>While behavior instructions provide the "how," guidelines provide the "must/must not" boundaries.</p>
+      <ol class="steps">
+        <li><div>Click <strong>Add Guideline</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/add_guideline.png" alt="Add Guideline"></div>
+        </div></li>
+        <li><div>For each rule, configure <strong>Name</strong>, <strong>Condition</strong>, and <strong>Action</strong> values from the <code>assets/Guidelines.md</code> file</div></li>
+        <li><div>Click <strong>Save</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/rule_details.png" alt="Rule Details"></div>
+        </div></li>
+      </ol>
+
+      <!-- ── 5. Test ── -->
+      <h2 id="test">5. Test the NL2SQL Agent</h2>
+
+      <h3 id="step51">5.1 Preview Mode Testing</h3>
+      <p>Before deploying, test the agent in preview mode.</p>
+      <ol class="steps">
+        <li><div>The preview panel should be visible on the right side of the screen.
+         <div class="img-block"><img src="NL2SQL_Business/attachments/preview_panel.png" alt="Preview Panel"></div>
+        </div></li>
+        <li><div>Start with: <code>Hello, what can you do?</code> — the agent should explain its capabilities.
+         <div class="img-block"><img src="NL2SQL_Business/attachments/hello_query.png" alt="Hello Query"></div>
+        </div></li>
+      </ol>
+
+      <div class="test-card">
+        <div class="test-card-header">Test 1 – Customer Lookup</div>
+        <div class="test-card-body">
+          <p class="q">Who are the 5 oldest customers?</p>
+          <p class="expected"><strong>Expected SQL generated:</strong></p>
+          <pre style="margin:0 0 8px;"><code>SELECT customer_id, name, age
+FROM postgres_catalog.bankdemo.customers_table
+ORDER BY age DESC
+LIMIT 5</code></pre>
+          <p class="expected">Returns: list of oldest customers, key insights, suggested follow-up questions.</p>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/oldest_customers.png" alt="Oldest Customers"></div>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">Test 2 – Investment Analysis</div>
+        <div class="test-card-body">
+          <p class="q">Who are the top 5 customers with the highest total investment value?</p>
+          <p class="expected"><strong>Expected SQL generated:</strong></p>
+          <pre style="margin:0 0 8px;"><code>SELECT c.customer_id, c.name, SUM(h.holding_amt) AS total_investment
+FROM iceberg_data.clients_schema_xxx.holdings_table h
+INNER JOIN iceberg_data.clients_schema_xxx.accounts_table a
+  ON h.account_id = a.account_id
+INNER JOIN postgres_catalog.bankdemo.customers_table c
+  ON a.customer_id = c.customer_id
+GROUP BY c.customer_id, c.name
+ORDER BY total_investment DESC
+LIMIT 5</code></pre>
+          <p class="expected">Returns: top 5 customers, key insights, follow-up questions.</p>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/investment_analysis.png" alt="Investment Analysis"></div>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">Test 3 – Cross-Table Join</div>
+        <div class="test-card-body">
+          <p class="q">List all customers who have invested in IBM and show their holdings</p>
+          <p class="expected"><strong>Expected SQL generated:</strong></p>
+          <pre style="margin:0 0 8px;"><code>SELECT c.customer_id, c.name, h.asset_ticker, h.holding_amt
+FROM iceberg_data.clients_schema_xxx.holdings_table h
+INNER JOIN iceberg_data.clients_schema_xxx.accounts_table a
+  ON h.account_id = a.account_id
+INNER JOIN postgres_catalog.bankdemo.customers_table c
+  ON a.customer_id = c.customer_id
+WHERE h.asset_ticker = 'IBM'
+ORDER BY h.holding_amt DESC
+LIMIT 100</code></pre>
+          <p class="expected">Returns: list of IBM investors, holdings, insights.</p>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/customers_IBM.png" alt="Customers with IBM Holdings"></div>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/customer_IBM_reasoning.png" alt="IBM Customer Reasoning"></div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>View Reasoning:</strong> Click <strong>Show reasoning</strong> in any response, then expand <strong>Step 1</strong> to see which tool was used and how the agent interpreted your question to generate SQL.
+      </div>
+
+      <h3 id="step52">5.2 Deploy the Agent</h3>
+      <ol class="steps">
+        <li><div>Click <strong>Deploy</strong> button in the top right corner
+         <div class="img-block"><img src="NL2SQL_Business/attachments/deploy_agent.png" alt="Deploy Agent"></div>
+        </div></li>
+        <li><div>Review the <strong>Pre-deployment summary</strong> and click <strong>Deploy</strong>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/predeployment.png" alt="Pre-deployment Summary"></div>
+        </div></li>
+        <li><div>Wait 1–2 minutes for the "Deployed successfully" message</div></li>
+      </ol>
+
+      <h3 id="step53">5.3 Production Testing</h3>
+      <ol class="steps">
+        <li><div>
+          From the hamburger menu (☰), select <strong>Chat</strong>. From the <strong>Agents</strong> dropdown, select your deployed agent.
+         <div class="img-block"><img src="NL2SQL_Business/attachments/select_deployed_agent.png" alt="Select Deployed Agent"></div>
+        </div></li>
+      </ol>
+
+      <table>
+        <tr><th>Test Query</th><th>What to expect</th><th>Screenshot</th></tr>
+        <tr>
+          <td><em>What are the top 10 accounts by balance?</em></td>
+          <td>Sorted account list with balances</td>
+          <td><span style="color:#adb5bd;font-size:12px;">test_query1.png</span></td>
+        </tr>
+        <tr>
+          <td><em>Show me all customers who have invested more than $50,000 in total</em></td>
+          <td>Filtered customer list with totals</td>
+          <td><span style="color:#adb5bd;font-size:12px;">customers_over_50000.png</span></td>
+        </tr>
+        <tr>
+          <td><em>What stocks does Kevin Wilcox own?</em></td>
+          <td>Agent finds two customers with the same name and asks for clarification. Type <code>1</code> to select.</td>
+          <td><span style="color:#adb5bd;font-size:12px;">ask_clarification.png · kevin_stocks.png</span></td>
+        </tr>
+        <tr>
+          <td><em>What's the average account balance across all customers?</em></td>
+          <td>Aggregated balance result</td>
+          <td><span style="color:#adb5bd;font-size:12px;">avg_balance.png</span></td>
+        </tr>
+      </table>
+
+      <!-- ── 6. Business Use Cases ── -->
+      <h2 id="use-cases">6. Business Use Cases</h2>
+      <p>Use these prompts to additionally test your agent beyond the guided scenarios:</p>
+      <ul>
+        <li>How many customers are from each state?</li>
+        <li>Which customers have the highest account balances?</li>
+        <li>Show me all holdings for a specific account</li>
+        <li>What is the total investment value per customer?</li>
+        <li>List accounts with zero holdings</li>
+        <li>Which customers opened accounts in the last 12 months?</li>
+      </ul>
+      <p>Refer to the <code>Business_use_cases.md</code> file in the lab folder for the full curated list.</p>
+
+      <!-- ── 8. Troubleshooting ── -->
+      <h2 id="troubleshooting">8. Troubleshooting</h2>
+
+      <div class="step-card">
+        <h4>Issue: "Connection failed" Error</h4>
+        <p><strong>Symptoms:</strong> Agent cannot connect to watsonx.data; tool calling fails immediately.</p>
+        <p><strong>Solutions:</strong></p>
+        <ul>
+          <li>Verify connection credentials in <code>env.txt</code></li>
+          <li>Check that the watsonx.data instance is running</li>
+          <li>Confirm network connectivity</li>
+          <li>Re-test the connection in Orchestrate</li>
+          <li>Verify MCP server is configured correctly</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <h4>Issue: "No data returned" for Valid Queries</h4>
+        <p><strong>Symptoms:</strong> Query executes but returns empty results when data should exist.</p>
+        <p><strong>Solutions:</strong></p>
+        <ul>
+          <li>Verify table names are correct (<code>catalog.schema.table</code>)</li>
+          <li>Check that data was loaded in the earlier lab setup</li>
+          <li>Test the query directly in the watsonx.data UI</li>
+          <li>Check for case sensitivity in string comparisons</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <h4>Issue: Agent Generates Incorrect SQL</h4>
+        <p><strong>Symptoms:</strong> SQL syntax errors, wrong tables/columns, query doesn't match question intent.</p>
+        <p><strong>Solutions:</strong></p>
+        <ul>
+          <li>Review agent instructions for clarity</li>
+          <li>Add more example queries to instructions</li>
+          <li>Provide clearer data schema information</li>
+          <li>Rephrase your question more specifically</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <h4>Issue: Agent Doesn't Understand Question</h4>
+        <p><strong>Symptoms:</strong> Agent asks for clarification repeatedly or generates irrelevant queries.</p>
+        <p><strong>Solutions:</strong></p>
+        <ul>
+          <li>Rephrase the question more clearly</li>
+          <li>Be more specific about what you want</li>
+          <li>Use terminology from the data schema</li>
+          <li>Break complex questions into simpler parts</li>
+        </ul>
+      </div>
+
+      <!-- ── Key Takeaways ── -->
+      <h2 id="takeaways">Key Takeaways</h2>
+      <div class="takeaway-grid">
+        <div class="takeaway-card">
+          <h4>✅ No-Code Solution</h4>
+          <p>Built a powerful NL2SQL agent without writing any code — entirely through the UI.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Business Accessibility</h4>
+          <p>Made data accessible to non-technical users through natural language queries.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Intelligent Query Generation</h4>
+          <p>Agent automatically converts questions to optimized SQL, including complex multi-table joins.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Production Ready</h4>
+          <p>Deployed a scalable enterprise solution. Eliminates dependency on IT teams for routine queries.</p>
+        </div>
+      </div>
+
+      <div class="callout success" style="margin-top:32px;">
+        <strong>Next lab:</strong> Head to <a href="lab-governance.html">Lab 3 – Data Intelligence Governance</a> to learn how to profile data, assign business terms, and enforce data protection rules using AI-powered metadata enrichment.
+      </div>
+
+    </article>
+  </div>
+
+  <footer>Made with IBM Bob</footer>
+
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 3 – Data Intelligence Governance · WMATA Bootcamp</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1f2328;
+      background: #fff;
+    }
+    a { color: #3b82d4; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topnav {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #57606a;
+    }
+    .topnav a { color: #3b82d4; }
+    .topnav .sep { color: #d0d7de; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 40px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      font-size: 13px;
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #57606a;
+      margin-bottom: 10px;
+    }
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 2px; }
+    .toc a {
+      display: block;
+      padding: 3px 0;
+      color: #57606a;
+      border-left: 2px solid transparent;
+      padding-left: 8px;
+    }
+    .toc a:hover { color: #3b82d4; text-decoration: none; border-left-color: #3b82d4; }
+    .toc .sub { padding-left: 18px; font-size: 12px; }
+
+    article { min-width: 0; }
+
+    .lab-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #3b82d4;
+      margin-bottom: 8px;
+    }
+    article h1 {
+      font-size: 34px;
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .lead {
+      font-size: 15px;
+      color: #57606a;
+      margin-bottom: 32px;
+      max-width: 640px;
+    }
+    .meta-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .pill {
+      font-size: 12px;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 3px 10px;
+      color: #57606a;
+    }
+
+    article h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 44px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    article h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    article h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+    article p { margin-bottom: 12px; }
+    article ul, article ol { margin: 8px 0 14px 22px; }
+    article li { margin-bottom: 4px; }
+
+    .callout {
+      background: #f7f8fa;
+      border-left: 3px solid #3b82d4;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout.warn { border-left-color: #e6a817; }
+    .callout.success { border-left-color: #22a06b; }
+    .callout.note { border-left-color: #57606a; background: #fafbfc; }
+
+    .step-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      background: #f7f8fa;
+    }
+    .step-card h3 { margin-top: 0; }
+    .step-card h4 { margin-top: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+    th {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      border: 1px solid #e5e7eb;
+      padding: 8px 12px;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafbfc; }
+
+    code {
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      background: #f3f4f6;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+
+    .img-ref {
+      font-size: 12px;
+      color: #adb5bd;
+      font-style: italic;
+      margin: 4px 0 0;
+    }
+    .img-block {
+      margin: 10px 0 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .img-block img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .steps { counter-reset: step; list-style: none; margin-left: 0; }
+    .steps > li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .steps > li::before {
+      content: counter(step);
+      width: 28px;
+      height: 28px;
+      background: #3b82d4;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .workflow-list {
+      list-style: none;
+      margin: 16px 0;
+      padding: 0;
+    }
+    .workflow-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: #fafbfc;
+    }
+    .wf-num {
+      width: 26px;
+      height: 26px;
+      background: #e5e7eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: #57606a;
+    }
+    .wf-text strong { display: block; font-size: 14px; }
+    .wf-text p { font-size: 13px; color: #57606a; margin: 2px 0 0; }
+
+    .takeaway-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .takeaway-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 16px 18px;
+      background: #f7f8fa;
+    }
+    .takeaway-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #3b82d4;
+    }
+    .takeaway-card p { font-size: 13px; color: #57606a; margin-bottom: 0; }
+
+    footer {
+      border-top: 1px solid #e5e7eb;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #adb5bd;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="index.html">WMATA Bootcamp</a>
+    <span class="sep">/</span>
+    <span>Lab 3 – Data Intelligence Governance</span>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="toc">
+      <p class="toc-title">Contents</p>
+      <ul>
+        <li><a href="#intro">1. Introduction</a></li>
+        <li><a href="#prereqs">2. Prerequisites</a></li>
+        <li><a href="#overview">3. Lab Overview</a></li>
+        <li><a href="#steps">4. Lab Steps</a>
+          <ul>
+            <li><a class="sub" href="#step41">4.1 Open wxi Service</a></li>
+            <li><a class="sub" href="#step42">4.2 Create Project</a></li>
+            <li><a class="sub" href="#step43">4.3 Import Asset</a></li>
+            <li><a class="sub" href="#step44">4.4 Browse Asset</a></li>
+            <li><a class="sub" href="#step45">4.5 Profile Data</a></li>
+            <li><a class="sub" href="#step46">4.6 Enrich Data</a></li>
+          </ul>
+        </li>
+        <li><a href="#verify">5. Verify Data Protection</a></li>
+        <li><a href="#takeaways">Key Takeaways</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+        <li><a href="#next">Next Steps</a></li>
+      </ul>
+    </aside>
+
+    <!-- Article -->
+    <article>
+      <span class="lab-badge">Lab 3 &nbsp;·&nbsp; 2:20 – 3:00 PM</span>
+      <h1>Data Intelligence – Governance</h1>
+      <p class="lead">Act as a Data Steward to profile data, enrich metadata with AI, assign business terms and data classifications, and enforce masking rules for sensitive PII/SPI fields — all through the watsonx.data Intelligence platform.</p>
+      <div class="meta-pills">
+        <span class="pill">⏱ 60–75 minutes</span>
+        <span class="pill">👤 Data Stewards, Governance Teams</span>
+        <span class="pill">💻 UI-based, no coding</span>
+        <span class="pill">⚠️ 5–6 active participants (Trial license limit)</span>
+      </div>
+
+      <div class="callout warn">
+        Under the Trial license of watsonx.data Intelligence, this lab is available to approximately <strong>5–6 participants</strong> due to limited CUH (30 units). Others can observe and learn the concepts.
+      </div>
+
+      <!-- ── 1. Introduction ── -->
+      <h2 id="intro">1. Introduction</h2>
+      <p>This lab demonstrates how to use <strong>watsonx.data Intelligence</strong> to profile data, enrich metadata with AI, and enforce data protection rules. You'll act as a <strong>Data Steward</strong> to create and implement governance artifacts that protect sensitive data and ensure data quality.</p>
+
+      <h3>What This Lab Demonstrates</h3>
+      <ul>
+        <li><strong>Data Profiling</strong> — analyze data structure, types, and content automatically</li>
+        <li><strong>AI-Powered Metadata Enrichment</strong> — use machine learning to assign business terms and classifications</li>
+        <li><strong>Data Quality Assessment</strong> — automated quality checks and scoring</li>
+        <li><strong>Data Protection</strong> — implement masking rules for sensitive information (PII/SPI)</li>
+        <li><strong>Catalog Publishing</strong> — make governed assets available for consumption</li>
+      </ul>
+
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>✅ Profile data to understand structure and content</li>
+        <li>✅ Use AI-powered metadata enrichment</li>
+        <li>✅ Assign business terms and data classifications</li>
+        <li>✅ Configure data quality checks</li>
+        <li>✅ Implement data protection rules (masking)</li>
+        <li>✅ Publish governed assets to a catalog</li>
+      </ul>
+
+      <h3>What You'll Build</h3>
+      <ol>
+        <li><strong>Profiled Data Asset</strong> — complete statistical analysis of customer data</li>
+        <li><strong>Enriched Metadata</strong> — AI-generated descriptions and classifications</li>
+        <li><strong>Assigned Business Terms</strong> — standardized definitions for data elements</li>
+        <li><strong>Data Quality Metrics</strong> — automated quality assessments</li>
+        <li><strong>Protected Sensitive Data</strong> — masking rules for PII/SPI fields</li>
+        <li><strong>Published Governed Asset</strong> — available in catalog for consumption</li>
+      </ol>
+
+      <h3>Target Audience</h3>
+      <table>
+        <tr><th>Role</th><th>Purpose</th></tr>
+        <tr><td>Data Stewards</td><td>Primary audience — create and implement governance artifacts</td></tr>
+        <tr><td>Data Engineers</td><td>Technical implementation of governance policies</td></tr>
+        <tr><td>Data Governance Teams</td><td>Policy enforcement and oversight</td></tr>
+        <tr><td>Technical Users</td><td>Understanding governance mechanics</td></tr>
+      </table>
+
+      <!-- ── 2. Prerequisites ── -->
+      <h2 id="prereqs">2. Prerequisites</h2>
+      <ul>
+        <li>✅ Completed Getting Started Setup Guide Section 1</li>
+        <li>✅ Completed Data Warehouse Optimization and Data Lakehouse Labs (by instructor or student)</li>
+        <li>✅ Data Governance setup completed by instructor</li>
+        <li>✅ Access to shared <strong>watsonx.data Intelligence</strong> environment</li>
+        <li>✅ Instructor-provided catalog access</li>
+      </ul>
+
+      <div class="callout note">
+        <strong>Catalog:</strong> For the bootcamp, the catalog has been created for you and will be shared with all students. When naming connections and assets during the lab, use <strong>unique names</strong> to avoid conflicts. The catalog name will be provided by your instructor. It contains a Presto connection and a <code>customers_table</code> asset you'll use in the lab.
+      </div>
+
+      <!-- ── 3. Lab Overview ── -->
+      <h2 id="overview">3. Lab Overview</h2>
+
+      <h3>Lab Workflow</h3>
+      <ul class="workflow-list">
+        <li>
+          <span class="wf-num">1</span>
+          <div class="wf-text"><strong>Open watsonx.data Intelligence Service</strong><p>Access the watsonx.data Intelligence platform from IBM Cloud</p></div>
+        </li>
+        <li>
+          <span class="wf-num">2</span>
+          <div class="wf-text"><strong>Create Project</strong><p>Name: <code>Data Intelligence Governance FirstInitial+Lastname</code></p></div>
+        </li>
+        <li>
+          <span class="wf-num">3</span>
+          <div class="wf-text"><strong>Import Connected Asset from Catalog</strong><p>Import <code>customers_table</code> from the bootcamp catalog</p></div>
+        </li>
+        <li>
+          <span class="wf-num">4</span>
+          <div class="wf-text"><strong>Profile Data</strong><p>Analyze data structure and content automatically</p></div>
+        </li>
+        <li>
+          <span class="wf-num">5</span>
+          <div class="wf-text"><strong>Enrich Data</strong><p>Review options, create Metadata Enrichment Job, review AI suggestions, assign business terms, and publish to catalog</p></div>
+        </li>
+        <li>
+          <span class="wf-num">6</span>
+          <div class="wf-text"><strong>Verify Protection</strong><p>View asset, query in watsonx.data, observe masked fields (Email &amp; SSN)</p></div>
+        </li>
+      </ul>
+
+      <h3>Relationship to Data Intelligence – Quality</h3>
+      <table>
+        <tr><th>Aspect</th><th>Data Intelligence – Governance (this lab)</th><th>Data Quality (companion lab)</th></tr>
+        <tr><td><strong>Role</strong></td><td>Data Steward</td><td>Data Consumer</td></tr>
+        <tr><td><strong>Action</strong></td><td>Create &amp; Implement</td><td>View &amp; Understand</td></tr>
+        <tr><td><strong>Classifications</strong></td><td>Assign PII/SPI labels</td><td>Interpret what labels mean</td></tr>
+        <tr><td><strong>Business Terms</strong></td><td>Create and assign</td><td>Read and use</td></tr>
+        <tr><td><strong>Data Quality</strong></td><td>Configure checks</td><td>Review scores</td></tr>
+        <tr><td><strong>Data Protection</strong></td><td>Implement masking</td><td>See masked data</td></tr>
+      </table>
+
+      <div class="callout note">
+        Because we are working in a shared watsonx.data Intelligence (wxi) environment, some steps were done in advance by instructors (steps shown in dark blue in the lab overview image), including data protection rules. Instructors will walk you through those implemented steps and how they influence your access to data.
+      </div>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/image1.png" alt="Lab Overview Diagram"></div>
+
+      <!-- ── 4. Lab Steps ── -->
+      <h2 id="steps">4. Lab Steps</h2>
+
+      <h3 id="step41">4.1 Open watsonx.data Intelligence Service</h3>
+      <ol class="steps">
+        <li><div>Open a new <strong>incognito window</strong></div></li>
+        <li><div>
+          Log in to <a href="https://cloud.ibm.com" target="_blank">https://cloud.ibm.com</a> using the <strong>non-admin credentials</strong> provided by instructor
+        </div></li>
+        <li><div>
+          From the IBM Cloud Hamburger menu, select <a href="https://cloud.ibm.com/resources" target="_blank">Resource List</a>
+        </div></li>
+        <li><div>
+          Go to <strong>AI/Machine Learning</strong> → <strong>watsonx.data Intelligence</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/data-intelligence.png" alt="Data Intelligence"></div>
+        </div></li>
+        <li><div>
+          In the <strong>Data Fabric</strong> section, click <strong>Launch</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/launch-di.png" alt="Launch Data Fabric"></div>
+        </div></li>
+        <li><div>If prompted for a tour, agree to terms and select <strong>Skip for now</strong></div></li>
+      </ol>
+
+      <h3 id="step42">4.2 Create a Project</h3>
+      <div class="callout">
+        The data curation process here uses a project — similar to the Data Lakehouse lab — but this project is created in the shared watsonx.data environment within the Data Fabric context to leverage data fabric capabilities.
+      </div>
+      <ol class="steps">
+        <li><div>From the Hamburger menu, select <strong>Projects → View all Projects</strong></div></li>
+        <li><div>
+          Select <strong>New Project</strong> and configure:
+          <ul>
+            <li><strong>Name:</strong> <code>Data Intelligence - Governance FirstInitial+Lastname</code> (unique naming is important in the shared environment)</li>
+          </ul>
+        </div></li>
+        <li><div>Select your Cloud Object Storage from the list if not selected by default</div></li>
+        <li><div>
+          Click <strong>Create</strong>
+          <div class="callout warn" style="margin-top:8px;">You may be asked to create a User API Key if you don't have one — click Create to proceed.</div>
+        </div></li>
+      </ol>
+
+      <h3 id="step43">4.3 Import Connected Asset from Catalog</h3>
+      <ol class="steps">
+        <li><div>Within the project, go to the <strong>Assets</strong> tab → click <strong>Import assets</strong></div></li>
+        <li><div>In the left-hand menu, select <strong>Catalog asset</strong> → Choose the bootcamp catalog → <strong>Data asset</strong> → Select the customers table created by the instructor</div></li>
+        <li><div>
+          Click <strong>Import</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-12-33-30-pasted-vscode.png" alt="Import Connected Asset"></div>
+        </div></li>
+      </ol>
+
+      <h3 id="step44">4.4 Browse the Imported Asset</h3>
+      <ol class="steps">
+        <li><div>Select your Data Asset that you just imported</div></li>
+        <li><div>Notice that you are currently able to <strong>view all fields</strong></div></li>
+        <li><div>On the <strong>Profile</strong> tab, an overview of data with basic statistics will be automatically created</div></li>
+        <li><div>The <strong>Data Quality</strong> tab is currently empty — it will be populated after enrichment</div></li>
+      </ol>
+
+      <h3 id="step45">4.5 Profile Data for Imported Asset</h3>
+      <p>Profiling analyzes columns of data assets to understand their structure and content — computing statistics, determining data types and formats, classifying data, and capturing frequency distributions.</p>
+      <ol class="steps">
+        <li><div>
+          Select the <strong>Profile</strong> tab and click <strong>Update profile</strong> to start profiling.<br>
+          <em>This takes approximately 5–10 minutes. You can perform other tasks in the meantime.</em>
+        </div></li>
+      </ol>
+
+      <h3 id="step46">4.6 Enrich Data for Imported Asset</h3>
+      <p>Metadata enrichment uses pre-defined data classes and business terms to automatically assign or suggest enrichment during the metadata enrichment process. This saves organizations significant time by reducing manual effort.</p>
+
+      <h4>4.6.1 Review Enrichment Options</h4>
+      <ol class="steps">
+        <li><div>Go back to the project by clicking on its name</div></li>
+        <li><div>Go to the <strong>Manage</strong> tab → select <strong>Metadata enrichment</strong> in the left-side menu</div></li>
+        <li><div>
+          Scroll down to <strong>Term assignment</strong> methods and make sure the following options are selected:
+          <ul>
+            <li>Machine learning (ML model assigns terms)</li>
+            <li>Data-class-based assignments (terms assigned based on data class for a column)</li>
+            <li>Name matching (terms assigned based on similarity between term name and asset/column name)</li>
+            <li>Gen AI based term assignment <em>(if available)</em> — available with Trial or Premium SaaS license; uses LLM for domain-specific semantic matching</li>
+          </ul>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-17-37-00-pasted-vscode.png" alt="Gen AI Term Assignment Option"></div>
+        </div></li>
+      </ol>
+
+      <h4>4.6.2 Create Metadata Enrichment Job</h4>
+      <ol class="steps">
+        <li><div>Switch back to the <strong>Assets</strong> tab</div></li>
+        <li><div>Select <strong>New Asset</strong> → <strong>Enrich data assets with metadata</strong></div></li>
+        <li><div>
+          Enter Name: <code>MDE</code> and select <strong>Next</strong>
+        </div></li>
+        <li><div>Select <strong>Select data from project</strong> → Under Asset types, select <strong>Data asset</strong> and your table → click <strong>Select</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-13-13-14-pasted-vscode.png" alt="Select Data Asset"></div>
+        </div></li>
+        <li><div>Confirm your asset is selected and click <strong>Next</strong></div></li>
+        <li><div>
+          Set Enrichment Objectives by enabling all of the following:
+          <ul>
+            <li>Profile Data</li>
+            <li>Expand Metadata</li>
+            <li>Assign terms and classifications</li>
+            <li>Identify data quality checks</li>
+            <li>Run data quality analysis</li>
+          </ul>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-13-27-15-pasted-vscode.png" alt="Enrichment Objectives"></div>
+        </div></li>
+        <li><div>
+          Scroll down, select <strong>Select categories +</strong> → Select <code>[uncategorized]</code> and <code>Customer</code> → click <strong>Select</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/selectcategories.png" alt="Select Categories"></div>
+        </div></li>
+        <li><div>For <strong>Primary category for generated terms</strong>, select <code>Customer</code></div></li>
+        <li><div>
+          For Sampling, keep the default <strong>Basic</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-13-18-45-pasted-vscode.png" alt="Basic Sampling"></div>
+        </div></li>
+        <li><div>Schedule the enrichment job and click <strong>Next</strong></div></li>
+        <li><div>
+          Keep the default (run now) and click <strong>Next</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/schedulejob.png" alt="Schedule Job"></div>
+        </div></li>
+        <li><div>
+          Enrichment options will be displayed. Select <strong>Create</strong> to start the job.
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/confirmenrich.png" alt="Confirm Enrichment"></div>
+        </div></li>
+      </ol>
+
+      <div class="callout">
+        The enrichment process takes approximately <strong>5 minutes</strong>. Monitor status in the <strong>Jobs</strong> tab of the project — it will progress from <em>Started → Running → Completed</em>.
+      </div>
+
+      <h4>4.6.3 Review Enrichment Results</h4>
+      <p>As the data steward, you will now review the proposed enrichment before publishing it to the catalog.</p>
+      <ol class="steps">
+        <li><div>
+          From the <strong>Assets</strong> tab, go to Metadata Enrichment asset <code>MDE</code>
+        </div></li>
+        <li><div>
+          Go to the <strong>Columns</strong> tab to see results.
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-17-26-59-pasted-vscode.png" alt="Metadata Enrichment Columns"></div>
+          <div class="callout note" style="margin-top:8px;">Some metadata is generated using AI; others are assigned from governance artifacts. When confidence thresholds are met, metadata is automatically assigned. When the model fails to meet the threshold, it makes a suggestion (shown in purple).</div>
+        </div></li>
+        <li><div>
+          Click the first column <code>address</code>:
+          <ul>
+            <li>On the <strong>Details</strong> tab: see AI-suggested Display name and Description. Click <strong>Accept AI suggestion</strong> to approve, or click the pencil to edit.
+             <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-18-00-36-pasted-vscode.png" alt="Details Metadata Tab"></div>
+            </li>
+            <li>On the <strong>Governance</strong> tab: reject the suggested business term <code>Email</code>. Click <code>+</code> to assign manually → select <code>Address</code> → click <strong>Assign</strong>.
+             <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-18-04-25-pasted-vscode.png" alt="Governance Metadata Tab"></div>
+            </li>
+          </ul>
+        </div></li>
+        <li><div>
+          Click the purple <strong>1 suggested</strong> bubble next to <code>risk_score</code> → go to the <strong>Governance</strong> tab → click <strong>Assign</strong> to accept the suggestion.
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/risk-score.png" alt="Risk Score"></div>
+        </div></li>
+        <li><div>
+          For the <code>Address</code> business term with ambiguity: hover over the business term column for <code>Address</code> → select <strong>View more</strong> → go to the <strong>Governance</strong> tab → click <code>+</code> → search for <code>address</code> → select <code>Work Address</code> → click <strong>Assign</strong>.
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/address.png" alt="Address Business Term"></div>
+        </div></li>
+        <li><div>
+          Review the <strong>Data quality</strong> tab to see criteria used to calculate the quality score. For the <code>ssn</code> field:
+          <ul>
+            <li>Review assigned Business terms and Data Class</li>
+            <li>Set to <code>SSN</code> and <code>US Social Security Number</code> if not automatically assigned</li>
+            <li>Optionally set Classification to <code>Sensitive Personal Information</code></li>
+          </ul>
+        </div></li>
+        <li><div>
+          For the <code>email</code> field:
+          <ul>
+            <li>Review assigned Business terms and Data Class</li>
+            <li>Set to <code>Email</code> and <code>Email Address</code> if not automatically assigned</li>
+            <li>Optionally set Classification to <code>Personally Identifiable Information</code></li>
+          </ul>
+        </div></li>
+        <li><div>
+          Scroll to the right to explore available metadata and data quality scores. Click on a score to see how it was evaluated.
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-18-17-19-pasted-vscode.png" alt="Quality Score"></div>
+        </div></li>
+        <li><div>
+          For fields you have reviewed: click the 3-dots at the right end of the row → select <strong>Mark as reviewed</strong>
+        </div></li>
+      </ol>
+
+      <h4>4.6.4 Publish Enriched Data to Catalog (One Volunteer Only)</h4>
+      <div class="callout warn">Only one participant with sufficient access should perform this step — coordinate with your instructor on who will volunteer.</div>
+      <ol class="steps">
+        <li><div>
+          Navigate back to the Asset view by clicking on the <strong>Asset</strong> tab
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/returntoasset.png" alt="Return to Asset"></div>
+        </div></li>
+        <li><div>
+          Select the checkbox next to the data asset and click <strong>Publish</strong> in the blue bar
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/publish.png" alt="Publish Asset"></div>
+        </div></li>
+        <li><div>
+          Select the bootcamp catalog and click <strong>Next</strong>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/publish2.png" alt="Publish Step 2"></div>
+        </div></li>
+        <li><div>On the Review Assets page, click <strong>Publish</strong>. This takes a few minutes. Wait for "Request to publish assets completed".</div></li>
+      </ol>
+
+      <p>After publishing, the catalog will show updated metadata and governance artifacts for the selected asset.</p>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-18-54-45-pasted-vscode.png" alt="Published Asset in Catalog"></div>
+
+      <!-- ── 5. Verify ── -->
+      <h2 id="verify">5. Verify Data Protection</h2>
+
+      <h3>5.1 Verify Data Protection Rule is Being Enforced (Students)</h3>
+      <p>To verify the rule is working, use a non-admin user account (any user in the Techzone resource group aside from the instructor account).</p>
+
+      <ol class="steps">
+        <li><div>Make sure you are in the <strong>watsonx.data instance account</strong></div></li>
+        <li><div>Go to the <strong>watsonx.data Intelligence</strong> instance</div></li>
+        <li><div>Open the <strong>Bootcamp Catalog</strong></div></li>
+        <li><div>
+          Open the data asset from watsonx.data and click the <strong>Asset</strong> tab
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.25.49%E2%80%AFPM.png" alt="Asset Tab Screenshot"></div>
+        </div></li>
+        <li><div>
+          In another window, go to the <strong>watsonx.data</strong> instance (Resource List → Databases → watsonx.data → Open web console)
+        </div></li>
+        <li><div>
+          Go to <strong>Query Workspace</strong> → navigate to <code>postgres_catalog → bankdemo → customers_table</code> → generate a Select Statement → run on the Presto engine
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.43.43%E2%80%AFPM.png" alt="Query Workspace Screenshot"></div>
+        </div></li>
+        <li><div>
+          Scroll over to the <code>email</code> and <code>ssn</code> columns to observe masking in place:
+          <ul>
+            <li>Email address is masked</li>
+            <li>SSN field is masked with different (obfuscated) values</li>
+          </ul>
+         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.50.32%E2%80%AFPM.png" alt="Masked Data Screenshot"></div>
+        </div></li>
+      </ol>
+
+      <div class="callout success">
+        You have demonstrated that watsonx.data allows data stewards to enrich and catalog data just like any other data in their enterprise, and that governance rules (masking) are enforced at query time.
+      </div>
+
+      <!-- ── Takeaways ── -->
+      <h2 id="takeaways">Key Takeaways</h2>
+      <div class="takeaway-grid">
+        <div class="takeaway-card">
+          <h4>✅ AI-Powered Enrichment</h4>
+          <p>AI can accelerate metadata enrichment by up to 80%, reducing manual effort across large datasets.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Data Profiling</h4>
+          <p>Profiling provides complete statistical analysis of data structure, types, and content — essential for governance.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Data Classification</h4>
+          <p>Classify and protect sensitive data (PII/SPI) with automated detection and labeling.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Business Terms</h4>
+          <p>Standardized business terms ensure consistent definitions for data elements across the enterprise.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Data Quality</h4>
+          <p>Automated quality checks measure and report on data trustworthiness at column level.</p>
+        </div>
+        <div class="takeaway-card">
+          <h4>✅ Data Protection</h4>
+          <p>Masking rules enforce privacy at query time — protecting SSN and email fields without changing source data.</p>
+        </div>
+      </div>
+
+      <!-- ── Troubleshooting ── -->
+      <h2 id="troubleshooting">Troubleshooting</h2>
+
+      <div class="step-card">
+        <h4>Cannot create project</h4>
+        <p>Verify you're logged in to the correct IBM Cloud account (non-admin credentials from instructor).</p>
+      </div>
+      <div class="step-card">
+        <h4>Enrichment job fails</h4>
+        <p>Check CUH availability — with the Trial license (30 CUH), only 5–6 participants can run enrichment simultaneously. You may need to wait for capacity to free up.</p>
+      </div>
+      <div class="step-card">
+        <h4>Cannot see catalog</h4>
+        <p>Verify the instructor has granted you access to the bootcamp catalog.</p>
+      </div>
+      <div class="step-card">
+        <h4>Data protection not working</h4>
+        <p>Ensure data protection rules were configured by the instructor in advance. Confirm you are querying as a non-admin user (admin users own the data and are exempt from masking).</p>
+      </div>
+
+      <!-- ── Next Steps ── -->
+      <h2 id="next">Next Steps</h2>
+
+      <h3>Business Value</h3>
+      <p>This lab demonstrates how organizations can:</p>
+      <ul>
+        <li><strong>Automate</strong> governance with AI (80% time savings)</li>
+        <li><strong>Protect</strong> sensitive data while maintaining utility</li>
+        <li><strong>Standardize</strong> data definitions across the enterprise</li>
+        <li><strong>Ensure</strong> compliance with regulations (GDPR, CCPA, HIPAA)</li>
+        <li><strong>Improve</strong> data quality and trustworthiness</li>
+      </ul>
+
+      <h3>Important Notes for This Lab</h3>
+      <table>
+        <tr><th>Topic</th><th>Detail</th></tr>
+        <tr><td>Shared Environment</td><td>Work in a shared wxi instance — use unique naming: <code>Data Intelligence Governance FirstInitial+Lastname</code></td></tr>
+        <tr><td>Publishing</td><td>Only one participant publishes to the shared catalog — coordinate with instructor</td></tr>
+        <tr><td>Trial License Limit</td><td>30 CUH total — only 5–6 active participants recommended; others observe</td></tr>
+        <tr><td>Pre-configured by Instructor</td><td>Bootcamp catalog, governance artifacts, data protection rules, service-to-service authorization</td></tr>
+      </table>
+
+      <div class="callout success" style="margin-top:32px;">
+        <strong>You've completed all three labs!</strong> Head back to <a href="index.html">the main page</a> to review the agenda. Up next: the live <strong>Data Warehouse Optimization demo</strong> at 3:15 PM, followed by Q&amp;A.
+      </div>
+
+    </article>
+  </div>
+
+  <footer>Made with IBM Bob</footer>
+
+</body>
+</html>

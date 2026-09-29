@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="bob_logo.png" />
   <title>watsonx.data Bootcamp · WMATA</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,6 +28,16 @@
     .header {
       border-bottom: 1px solid #e5e7eb;
       padding: 20px 0;
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      transition: box-shadow 0.2s ease;
+    }
+    .header.scrolled {
+      box-shadow: 0 1px 12px rgba(0,0,0,0.07);
     }
     .header-inner {
       max-width: 960px;
@@ -39,7 +50,11 @@
     .header-inner img.metro { height: 56px; width: auto; }
     .header-inner img.ibm   { height: 36px; width: auto; }
 
-    /* ── Hero ── */
+    /* ── Hero entrance ── */
+    @keyframes hero-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     .hero {
       padding: 56px 0 40px;
       max-width: 900px;
@@ -49,6 +64,7 @@
       color: #3b82d4;
       font-weight: 500;
       margin-bottom: 10px;
+      animation: hero-in 0.4s cubic-bezier(0.22,1,0.36,1) 0.05s both;
     }
     .hero h1 {
       font-size: 52px;
@@ -56,11 +72,13 @@
       line-height: 1.1;
       color: #1f2328;
       margin-bottom: 16px;
+      animation: hero-in 0.45s cubic-bezier(0.22,1,0.36,1) 0.12s both;
     }
     .hero p {
       font-size: 16px;
       color: #57606a;
       max-width: 680px;
+      animation: hero-in 0.45s cubic-bezier(0.22,1,0.36,1) 0.18s both;
     }
 
     /* ── Main Content ── */
@@ -94,7 +112,9 @@
       padding: 7px 0;
       border-bottom: 1px solid #f0f1f3;
       gap: 12px;
+      transition: background 0.15s ease;
     }
+    .agenda-row:hover { background: #f7f8fa; }
     .agenda-row:last-child { border-bottom: none; }
     .agenda-time {
       font-size: 13px;
@@ -106,10 +126,20 @@
       color: #1f2328;
     }
     .agenda-event.lab { color: #1f2328; }
-    .agenda-event.lab a { color: #1f2328; font-weight: 500; }
+    .agenda-event.lab a {
+      color: #1f2328;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .agenda-event.lab a:hover { color: #3b82d4; text-decoration: none; }
     .agenda-event.lab a::before { content: "● "; color: #3b82d4; font-size: 10px; vertical-align: 2px; }
     .agenda-event.demo a::before { content: "● "; color: #7c5cd8; font-size: 10px; vertical-align: 2px; }
-    .agenda-event.demo a { color: #1f2328; font-weight: 500; }
+    .agenda-event.demo a {
+      color: #1f2328;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .agenda-event.demo a:hover { color: #7c5cd8; text-decoration: none; }
     .agenda-event.break { color: #adb5bd; }
     .meta-row {
       font-size: 12px;
@@ -132,6 +162,13 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s cubic-bezier(0.22,1,0.36,1);
+      will-change: transform;
+    }
+    .lab-card:hover {
+      border-color: #c8d8f0;
+      box-shadow: 0 4px 16px rgba(59,130,212,0.10);
+      transform: translateY(-2px);
     }
     .lab-card-num {
       font-size: 11px;
@@ -165,8 +202,100 @@
       border-radius: 4px;
       padding: 6px 14px;
       align-self: flex-start;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
     }
-    .lab-card-link:hover { background: #3b82d4; color: #fff; text-decoration: none; }
+    .lab-card-link:hover {
+      background: #3b82d4;
+      color: #fff;
+      text-decoration: none;
+      transform: translateX(2px);
+    }
+
+    /* ── Scroll fade-in ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-eyebrow, .hero h1, .hero p { animation: none; }
+      .fade-up { opacity: 1; transform: none; transition: none; }
+      .lab-card, .lab-card-link, .agenda-row { transition: none; }
+      .header { transition: none; }
+    }
+
+    /* ── Survey section ── */
+    .survey-section {
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .survey-lead {
+      font-size: 14px;
+      color: #57606a;
+      margin-bottom: 24px;
+      max-width: 560px;
+    }
+
+    /* countdown gate */
+    .survey-locked {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 28px 32px;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+    }
+    .survey-locked-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #adb5bd;
+    }
+    .survey-countdown {
+      font-size: 40px;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      color: #1f2328;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .survey-countdown span {
+      font-size: 14px;
+      font-weight: 400;
+      color: #57606a;
+      letter-spacing: 0;
+      margin-left: 2px;
+    }
+    .survey-unlock-note {
+      font-size: 13px;
+      color: #57606a;
+    }
+
+    /* iframe reveal */
+    .survey-frame-wrap {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      display: none;
+    }
+    .survey-frame-wrap.unlocked {
+      display: block;
+      animation: hero-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .survey-frame-wrap iframe {
+      display: block;
+      width: 100%;
+      border: none;
+    }
 
     /* ── Footer ── */
     footer {
@@ -201,8 +330,8 @@
   <div class="page-wrap">
 
     <!-- Agenda -->
-    <h2 class="section-title">Today's agenda</h2>
-    <div class="agenda">
+    <h2 class="section-title fade-up">Today's agenda</h2>
+    <div class="agenda fade-up">
       <!-- Left column -->
       <div class="agenda-col">
         <div class="agenda-row">
@@ -257,10 +386,10 @@
     <p class="meta-row">12:00 – 4:00 pm &nbsp;&middot;&nbsp; 3 hands-on labs &nbsp;&middot;&nbsp; 1 demo &nbsp;&middot;&nbsp; Led by IBM Client Engineering</p>
 
     <!-- Lab cards -->
-    <h2 class="section-title">Lab guides</h2>
+    <h2 class="section-title fade-up">Lab guides</h2>
     <div class="lab-cards">
 
-      <div class="lab-card">
+      <div class="lab-card fade-up">
         <span class="lab-card-num">Lab 1 &nbsp;&middot;&nbsp; 1:00 – 1:20</span>
         <h3>Data Discovery</h3>
         <p>Explore FinWin Bank's unified data platform. Browse catalogs, understand the star schema, preview tables, and run federated SQL queries across Postgres, Netezza, and Iceberg — no coding required.</p>
@@ -268,7 +397,7 @@
         <a class="lab-card-link" href="lab-data-discovery.html">Open lab guide →</a>
       </div>
 
-      <div class="lab-card">
+      <div class="lab-card fade-up">
         <span class="lab-card-num">Lab 2 &nbsp;&middot;&nbsp; 1:20 – 2:05</span>
         <h3>Natural Language to SQL</h3>
         <p>Build an AI agent in watsonx Orchestrate that converts plain-English questions into SQL queries against watsonx.data. Configure, test, and deploy a no-code NL2SQL solution for business users.</p>
@@ -276,7 +405,7 @@
         <a class="lab-card-link" href="lab-nl2sql.html">Open lab guide →</a>
       </div>
 
-      <div class="lab-card">
+      <div class="lab-card fade-up">
         <span class="lab-card-num">Lab 3 &nbsp;&middot;&nbsp; 2:20 – 3:00</span>
         <h3>Data Intelligence – Governance</h3>
         <p>Act as a Data Steward in watsonx.data Intelligence. Profile data, run AI-powered metadata enrichment, assign business terms and classifications, and enforce data protection rules for PII/SPI fields.</p>
@@ -286,6 +415,32 @@
 
     </div>
 
+    <!-- Survey -->
+    <div class="survey-section fade-up">
+      <h2 class="section-title" style="margin-top:0;">Post-session survey</h2>
+      <p class="survey-lead">Takes 2 minutes — your feedback directly shapes the next bootcamp.</p>
+
+      <!-- locked state -->
+      <div class="survey-locked" id="survey-locked">
+        <span class="survey-locked-label">Available in</span>
+        <div class="survey-countdown" id="survey-countdown">--<span>h</span> --<span>m</span> --<span>s</span></div>
+        <p class="survey-unlock-note">The survey unlocks at <strong>3:40 PM</strong> today.</p>
+      </div>
+
+      <!-- iframe (hidden until unlocked) -->
+      <div class="survey-frame-wrap" id="survey-frame">
+        <iframe
+          src="https://docs.google.com/forms/d/e/1FAIpQLSdAzR1QJtd9oKjbCPkPqizqCmny4xaWyLQl090LWxKgcflyBw/viewform?embedded=true"
+          height="820"
+          frameborder="0"
+          marginheight="0"
+          marginwidth="0"
+          title="Post-session survey">
+          Loading survey…
+        </iframe>
+      </div>
+    </div>
+
   </div>
   </main>
 
@@ -293,5 +448,58 @@
     Made with IBM Bob
   </footer>
 
+  <script>
+    // Sticky header shadow on scroll
+    const header = document.querySelector('.header');
+    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 4);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Scroll-driven fade-up reveal
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    let cardIdx = 0;
+    document.querySelectorAll('.fade-up').forEach(el => {
+      if (el.classList.contains('lab-card')) el.style.transitionDelay = (cardIdx++) * 60 + 'ms';
+      io.observe(el);
+    });
+
+    // Survey countdown — unlocks at 3:40 PM local time
+    (function () {
+      const lockedEl = document.getElementById('survey-locked');
+      const frameEl  = document.getElementById('survey-frame');
+      const countEl  = document.getElementById('survey-countdown');
+
+      function getUnlockTime() {
+        const t = new Date();
+        t.setHours(15, 40, 0, 0);
+        return t;
+      }
+
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      function unlock() {
+        lockedEl.style.display = 'none';
+        frameEl.classList.add('unlocked');
+      }
+
+      function tick() {
+        const diff = getUnlockTime() - Date.now();
+        if (diff <= 0) { unlock(); return; }
+        const h = Math.floor(diff / 3_600_000);
+        const m = Math.floor((diff % 3_600_000) / 60_000);
+        const s = Math.floor((diff % 60_000) / 1_000);
+        countEl.innerHTML =
+          (h > 0 ? pad(h) + '<span>h</span> ' : '') +
+          pad(m) + '<span>m</span> ' +
+          pad(s) + '<span>s</span>';
+        setTimeout(tick, 1000);
+      }
+
+      if (Date.now() >= getUnlockTime()) { unlock(); } else { tick(); }
+    })();
+  </script>
 </body>
 </html>

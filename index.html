@@ -234,67 +234,120 @@
       padding-top: 40px;
       border-top: 1px solid #e5e7eb;
     }
-    .survey-lead {
-      font-size: 14px;
-      color: #57606a;
-      margin-bottom: 24px;
-      max-width: 560px;
-    }
 
-    /* countdown gate */
-    .survey-locked {
+    /* toggle trigger */
+    .survey-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: linear-gradient(135deg, #ffffff 0%, #deeaf9 100%);
+      border: 1px solid #c8d8f0;
+      border-radius: 8px;
+      padding: 18px 24px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 1px 4px rgba(59,130,212,0.08);
+      transition: box-shadow 0.18s ease, transform 0.18s cubic-bezier(0.22,1,0.36,1), border-color 0.18s ease;
+    }
+    .survey-toggle:hover {
+      box-shadow: 0 3px 12px rgba(59,130,212,0.13);
+      transform: translateY(-1px);
+      border-color: #a8c4e8;
+    }
+    .survey-toggle:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(59,130,212,0.08);
+    }
+    .survey-toggle[aria-expanded="true"] {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom-color: transparent;
+      box-shadow: 0 1px 4px rgba(59,130,212,0.08);
+    }
+    .survey-toggle-left {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 28px 32px;
-      background: #f7f8fa;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      gap: 3px;
     }
-    .survey-locked-label {
-      font-size: 12px;
+    .survey-toggle-eyebrow {
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #adb5bd;
+      letter-spacing: 0.08em;
+      color: #3b82d4;
     }
-    .survey-countdown {
-      font-size: 40px;
-      font-weight: 300;
-      letter-spacing: -0.02em;
+    .survey-toggle-label {
+      font-size: 16px;
+      font-weight: 600;
       color: #1f2328;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
     }
-    .survey-countdown span {
-      font-size: 14px;
-      font-weight: 400;
-      color: #57606a;
-      letter-spacing: 0;
-      margin-left: 2px;
-    }
-    .survey-unlock-note {
+    .survey-toggle-sub {
       font-size: 13px;
       color: #57606a;
+      margin-top: 1px;
+    }
+    .survey-toggle-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      margin-left: 20px;
+    }
+    .survey-toggle-cta {
+      font-size: 13px;
+      font-weight: 500;
+      color: #3b82d4;
+      white-space: nowrap;
+    }
+    .survey-toggle[aria-expanded="true"] .survey-toggle-cta { display: none; }
+    .survey-toggle-chevron {
+      width: 28px;
+      height: 28px;
+      background: #deeaf9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3b82d4;
+      font-size: 14px;
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), background 0.15s ease;
+      line-height: 1;
+    }
+    .survey-toggle:hover .survey-toggle-chevron {
+      background: #c8d8f0;
+    }
+    .survey-toggle[aria-expanded="true"] .survey-toggle-chevron {
+      transform: rotate(180deg);
     }
 
-    /* iframe reveal */
-    .survey-frame-wrap {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #fff;
-      display: none;
+    /* collapsible body */
+    .survey-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s cubic-bezier(0.22,1,0.36,1);
     }
-    .survey-frame-wrap.unlocked {
-      display: block;
-      animation: hero-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    .survey-body.open {
+      grid-template-rows: 1fr;
+    }
+    .survey-body-inner {
+      overflow: hidden;
+    }
+    .survey-frame-wrap {
+      border: 1px solid #d0dff5;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      background: #fff;
     }
     .survey-frame-wrap iframe {
       display: block;
       width: 100%;
       border: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .survey-toggle { transition: none; }
+      .survey-body { transition: none; }
+      .survey-toggle-chevron { transition: none; }
     }
 
     /* ── Footer ── */
@@ -417,27 +470,33 @@
 
     <!-- Survey -->
     <div class="survey-section fade-up">
-      <h2 class="section-title" style="margin-top:0;">Post-session survey</h2>
-      <p class="survey-lead">Takes 2 minutes — your feedback directly shapes the next bootcamp.</p>
-
-      <!-- locked state -->
-      <div class="survey-locked" id="survey-locked">
-        <span class="survey-locked-label">Available in</span>
-        <div class="survey-countdown" id="survey-countdown">--<span>h</span> --<span>m</span> --<span>s</span></div>
-        <p class="survey-unlock-note">The survey unlocks at <strong>3:40 PM</strong> today.</p>
-      </div>
-
-      <!-- iframe (hidden until unlocked) -->
-      <div class="survey-frame-wrap" id="survey-frame">
-        <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLSdAzR1QJtd9oKjbCPkPqizqCmny4xaWyLQl090LWxKgcflyBw/viewform?embedded=true"
-          height="820"
-          frameborder="0"
-          marginheight="0"
-          marginwidth="0"
-          title="Post-session survey">
-          Loading survey…
-        </iframe>
+      <button class="survey-toggle" id="survey-toggle" aria-expanded="false" aria-controls="survey-body">
+        <div class="survey-toggle-left">
+          <span class="survey-toggle-eyebrow">WMATA Bootcamp &middot; Post-session</span>
+          <span class="survey-toggle-label">Share your feedback</span>
+          <span class="survey-toggle-sub">2 minutes &nbsp;·&nbsp; shapes the next bootcamp</span>
+        </div>
+        <div class="survey-toggle-right">
+          <span class="survey-toggle-cta">Take the survey →</span>
+          <span class="survey-toggle-chevron" aria-hidden="true">&#8964;</span>
+        </div>
+      </button>
+      <div class="survey-body" id="survey-body" role="region">
+        <div class="survey-body-inner">
+          <div class="survey-frame-wrap">
+            <iframe
+              id="survey-iframe"
+              src=""
+              data-src="https://docs.google.com/forms/d/e/1FAIpQLSdAzR1QJtd9oKjbCPkPqizqCmny4xaWyLQl090LWxKgcflyBw/viewform?embedded=true"
+              height="900"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+              title="Post-session survey">
+              Loading survey…
+            </iframe>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -466,39 +525,22 @@
       io.observe(el);
     });
 
-    // Survey countdown — unlocks at 3:40 PM local time
+    // Survey dropdown toggle — loads iframe only on first open
     (function () {
-      const lockedEl = document.getElementById('survey-locked');
-      const frameEl  = document.getElementById('survey-frame');
-      const countEl  = document.getElementById('survey-countdown');
+      const toggle = document.getElementById('survey-toggle');
+      const body   = document.getElementById('survey-body');
+      const iframe = document.getElementById('survey-iframe');
+      let loaded   = false;
 
-      function getUnlockTime() {
-        const t = new Date();
-        t.setHours(15, 40, 0, 0);
-        return t;
-      }
-
-      function pad(n) { return String(n).padStart(2, '0'); }
-
-      function unlock() {
-        lockedEl.style.display = 'none';
-        frameEl.classList.add('unlocked');
-      }
-
-      function tick() {
-        const diff = getUnlockTime() - Date.now();
-        if (diff <= 0) { unlock(); return; }
-        const h = Math.floor(diff / 3_600_000);
-        const m = Math.floor((diff % 3_600_000) / 60_000);
-        const s = Math.floor((diff % 60_000) / 1_000);
-        countEl.innerHTML =
-          (h > 0 ? pad(h) + '<span>h</span> ' : '') +
-          pad(m) + '<span>m</span> ' +
-          pad(s) + '<span>s</span>';
-        setTimeout(tick, 1000);
-      }
-
-      if (Date.now() >= getUnlockTime()) { unlock(); } else { tick(); }
+      toggle.addEventListener('click', function () {
+        const open = body.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
+        // lazy-load the form on first open
+        if (open && !loaded) {
+          iframe.src = iframe.dataset.src;
+          loaded = true;
+        }
+      });
     })();
   </script>
 </body>

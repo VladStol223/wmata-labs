@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="bob_logo.png" />
   <title>Lab 3 – Data Intelligence Governance · WMATA Bootcamp</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -310,6 +311,16 @@
     }
     .lb-close:hover { opacity: 1; }
     .img-block img { cursor: zoom-in; }
+    pre.mermaid {
+      background: #ffffff;
+      color: #1f2328;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      text-align: center;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
   </style>
 </head>
 <body>
@@ -451,14 +462,14 @@
 
       <h3>Relationship to Data Intelligence – Quality</h3>
       <p><strong>Data Intelligence – Governance is the PRODUCER of Governance</strong> → Creates governance artifacts</p>
-      <!-- Rendered from mermaid graph LR in README -->
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0;font-size:13px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
-        <div style="background:#e6f3ff;border:1px solid #b3d4f5;border-radius:6px;padding:12px 16px;text-align:center;min-width:140px;">Data Intelligence – Governance<br><span style="color:#57606a;font-size:11px;">Technical Setup</span></div>
-        <div style="color:#adb5bd;">→ Creates →</div>
-        <div style="background:#fff4e6;border:1px solid #ffd59e;border-radius:6px;padding:12px 16px;text-align:center;min-width:120px;">Governance<br>Framework</div>
-        <div style="color:#adb5bd;">→ Consumed by →</div>
-        <div style="background:#e6fff9;border:1px solid #9de8d0;border-radius:6px;padding:12px 16px;text-align:center;min-width:120px;">Data Quality<br><span style="color:#57606a;font-size:11px;">Business Understanding</span></div>
-      </div>
+      <pre class="mermaid">
+graph LR
+    GOV["Data Intelligence – Governance<br/>Technical Setup"]
+    GF[Governance Framework]
+    DQ["Data Quality<br/>Business Understanding"]
+    GOV -->|Creates| GF
+    GF -->|Consumed by| DQ
+      </pre>
       <table>
         <tr><th>Aspect</th><th>Data Intelligence – Governance (this lab)</th><th>Data Quality (companion lab)</th></tr>
         <tr><td><strong>Role</strong></td><td>Data Steward</td><td>Data Consumer</td></tr>
@@ -713,10 +724,10 @@ LIMIT 10;</code></pre>
       </div>
 
       <p>You can also verify by opening the <strong>Bootcamp Catalog</strong> in watsonx.data Intelligence and viewing the asset — the <code>ssn</code> and <code>email</code> columns are flagged as masked:</p>
-      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.25.49%E2%80%AFPM.png" alt="Asset view showing masked ssn and email columns"></div>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.25.49%20PM.png" alt="Asset view showing masked ssn and email columns"></div>
 
       <p>And the Query Workspace showing the Generate SELECT step before running:</p>
-      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.43.43%E2%80%AFPM.png" alt="Query Workspace Generate SELECT"></div>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.43.43%20PM.png" alt="Query Workspace Generate SELECT"></div>
 
       <div class="callout success">
         You have demonstrated that watsonx.data allows data stewards to enrich and catalog data just like any other data in their enterprise, and that governance rules (masking) are enforced at query time.
@@ -818,6 +829,10 @@ LIMIT 10;</code></pre>
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') document.getElementById('lb').classList.remove('active');
     });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral', themeVariables: { background: '#ffffff', primaryBackground: '#ffffff' } });
   </script>
 </body>
 </html>

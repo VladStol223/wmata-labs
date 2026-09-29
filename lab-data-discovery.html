@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="bob_logo.png" />
   <title>Lab 1 – Data Discovery · WMATA Bootcamp</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -188,6 +189,13 @@
       margin: 16px 0;
     }
     pre code { background: none; padding: 0; color: inherit; }
+    pre.mermaid {
+      background: #ffffff;
+      color: #1f2328;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+    }
 
     /* image placeholder */
     .img-placeholder {
@@ -405,55 +413,53 @@
       <p>The power of watsonx.data is that you can query across all of these from a single interface — a financial advisor can look up a customer in Postgres, check their trading history in Iceberg, and see current-year activity in Netezza, all in one place.</p>
 
       <h3>Data Architecture</h3>
-      <!-- Rendered from mermaid graph TB in README -->
-      <div style="background:#f7f8fa;border:1px solid #e5e7eb;border-radius:8px;padding:28px 24px;margin:16px 0;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
-          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>PostgreSQL</strong><br><span style="color:#57606a;font-size:12px;">Customer Data</span></div>
-          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>Netezza</strong><br><span style="color:#57606a;font-size:12px;">Current Year<br>Transactions</span></div>
-          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>Iceberg</strong><br><span style="color:#57606a;font-size:12px;">Historical Data<br>2019–2024</span></div>
-          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>Hive</strong><br><span style="color:#57606a;font-size:12px;">Source Files</span></div>
-        </div>
-        <div style="text-align:center;color:#adb5bd;font-size:18px;margin-bottom:12px;">↓ &nbsp; ↓ &nbsp; ↓ &nbsp; ↓</div>
-        <div style="text-align:center;margin-bottom:12px;">
-          <div style="display:inline-block;background:#4CAF50;color:#fff;border-radius:6px;padding:12px 28px;font-size:13px;font-weight:600;">Presto Query Engine<br>Federated Queries</div>
-        </div>
-        <div style="text-align:center;color:#adb5bd;font-size:18px;margin-bottom:12px;">↓</div>
-        <div style="text-align:center;">
-          <div style="display:inline-block;background:#2196F3;color:#fff;border-radius:6px;padding:10px 28px;font-size:13px;font-weight:600;">Business Insights</div>
-        </div>
-      </div>
+      <pre class="mermaid">
+graph TB
+    PG[PostgreSQL<br/>Customer Data]
+    NZ[Netezza<br/>Current Year Transactions]
+    IC[Iceberg<br/>Historical Data 2019-2024]
+    HV[Hive<br/>Source Files]
+    PR[Presto Query Engine<br/>Federated Queries]
+    BI[Business Insights]
+    PG --> PR
+    NZ --> PR
+    IC --> PR
+    HV --> PR
+    PR --> BI
+      </pre>
 
       <h3 id="star-schema">Star Schema Overview</h3>
       <p>Your Iceberg schema (<code>iceberg_data_20260922_1602.netezza_offload_instructor</code>) contains a <strong>star schema</strong> — a common analytics pattern where a central <strong>fact table</strong> records business events, surrounded by <strong>dimension tables</strong> that provide context.</p>
-      <!-- Rendered from mermaid graph LR in README -->
-      <div style="background:#f7f8fa;border:1px solid #e5e7eb;border-radius:8px;padding:24px;margin:16px 0;overflow-x:auto;">
-        <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;font-size:13px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
-          <div style="background:#ff9800;color:#fff;border-radius:6px;padding:12px 14px;text-align:center;min-width:110px;font-weight:600;">fact_transactions<br><span style="font-weight:400;font-size:11px;">Core Trading Data</span></div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin:0 8px;align-items:flex-start;">
-            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ account_id</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_account<br><span style="color:#57606a;font-size:11px;">Account Details</span></div></div>
-            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ stock_id&nbsp;&nbsp;</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_stock<br><span style="color:#57606a;font-size:11px;">Stock Info</span></div></div>
-            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ date_id&nbsp;&nbsp;&nbsp;</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_date<br><span style="color:#57606a;font-size:11px;">Time Dimensions</span></div></div>
-            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ exchange_id</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_exchange<br><span style="color:#57606a;font-size:11px;">Exchange Info</span></div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:4px;margin-top:4px;"><span style="color:#adb5bd;font-size:11px;">dim_account → customer_id →</span><div style="background:#2196F3;color:#fff;border-radius:4px;padding:6px 10px;white-space:nowrap;">customers_table<br><span style="font-size:11px;opacity:0.85;">postgres_catalog</span></div></div>
-        </div>
-      </div>
+      <pre class="mermaid">
+graph LR
+    FT[fact_transactions<br/>Core Trading Data]
+    DA[dim_account<br/>Account Details]
+    DS[dim_stock<br/>Stock Info]
+    DD[dim_date<br/>Time Dimensions]
+    DE[dim_exchange<br/>Exchange Info]
+    CT[customers_table<br/>postgres_catalog]
+    FT -->|account_id| DA
+    FT -->|stock_id| DS
+    FT -->|date_id| DD
+    FT -->|exchange_id| DE
+    DA -->|customer_id| CT
+      </pre>
 
       <h3>Lab Workflow</h3>
-      <!-- Rendered from mermaid graph LR in README -->
-      <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap;margin:16px 0;font-size:12px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
-        <div style="background:#e3f2fd;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #bbdefb;">Explore<br>Data Manager</div>
-        <div style="color:#adb5bd;padding:0 6px;">→</div>
-        <div style="background:#f3e5f5;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #e1bee7;">Understand<br>Star Schema</div>
-        <div style="color:#adb5bd;padding:0 6px;">→</div>
-        <div style="background:#e8f5e9;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #c8e6c9;">Preview<br>Data</div>
-        <div style="color:#adb5bd;padding:0 6px;">→</div>
-        <div style="background:#fff3e0;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #ffe0b2;">Use Query<br>Workspace</div>
-        <div style="color:#adb5bd;padding:0 6px;">→</div>
-        <div style="background:#fce4ec;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #f8bbd0;">Run Business<br>Queries</div>
-        <div style="color:#adb5bd;padding:0 6px;">→</div>
-        <div style="background:#e0f2f1;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #b2dfdb;">Review Query<br>History</div>
-      </div>
+      <pre class="mermaid">
+graph LR
+    A[Explore Data Manager]:::step1 --> B[Understand Star Schema]:::step2
+    B --> C[Preview Data]:::step3
+    C --> D[Use Query Workspace]:::step4
+    D --> E[Run Business Queries]:::step5
+    E --> F[Review Query History]:::step6
+    classDef step1 fill:#e3f2fd,stroke:#90caf9,color:#1f2328
+    classDef step2 fill:#f3e5f5,stroke:#ce93d8,color:#1f2328
+    classDef step3 fill:#e8f5e9,stroke:#a5d6a7,color:#1f2328
+    classDef step4 fill:#fff3e0,stroke:#ffcc80,color:#1f2328
+    classDef step5 fill:#fce4ec,stroke:#f48fb1,color:#1f2328
+    classDef step6 fill:#e0f2f1,stroke:#80cbc4,color:#1f2328
+      </pre>
 
       <!-- ── Step 1 ── -->
       <h2 id="step1">Step 1 – Exploring the Infrastructure &amp; Data Manager</h2>
@@ -790,6 +796,10 @@ LIMIT 10;</code></pre>
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') document.getElementById('lb').classList.remove('active');
     });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral', themeVariables: { background: '#ffffff', primaryBackground: '#ffffff' } });
   </script>
 </body>
 </html>

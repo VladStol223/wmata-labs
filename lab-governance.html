@@ -450,6 +450,15 @@
       </ul>
 
       <h3>Relationship to Data Intelligence – Quality</h3>
+      <p><strong>Data Intelligence – Governance is the PRODUCER of Governance</strong> → Creates governance artifacts</p>
+      <!-- Rendered from mermaid graph LR in README -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0;font-size:13px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
+        <div style="background:#e6f3ff;border:1px solid #b3d4f5;border-radius:6px;padding:12px 16px;text-align:center;min-width:140px;">Data Intelligence – Governance<br><span style="color:#57606a;font-size:11px;">Technical Setup</span></div>
+        <div style="color:#adb5bd;">→ Creates →</div>
+        <div style="background:#fff4e6;border:1px solid #ffd59e;border-radius:6px;padding:12px 16px;text-align:center;min-width:120px;">Governance<br>Framework</div>
+        <div style="color:#adb5bd;">→ Consumed by →</div>
+        <div style="background:#e6fff9;border:1px solid #9de8d0;border-radius:6px;padding:12px 16px;text-align:center;min-width:120px;">Data Quality<br><span style="color:#57606a;font-size:11px;">Business Understanding</span></div>
+      </div>
       <table>
         <tr><th>Aspect</th><th>Data Intelligence – Governance (this lab)</th><th>Data Quality (companion lab)</th></tr>
         <tr><td><strong>Role</strong></td><td>Data Steward</td><td>Data Consumer</td></tr>
@@ -654,57 +663,60 @@
         </div></li>
       </ol>
 
-      <h4>4.6.4 Publish Enriched Data to Catalog (One Volunteer Only)</h4>
-      <div class="callout warn">Only one participant with sufficient access should perform this step — coordinate with your instructor on who will volunteer.</div>
-      <ol class="steps">
-        <li><div>
-          Navigate back to the Asset view by clicking on the <strong>Asset</strong> tab
-         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/returntoasset.png" alt="Return to Asset"></div>
-        </div></li>
-        <li><div>
-          Select the checkbox next to the data asset and click <strong>Publish</strong> in the blue bar
-         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/publish.png" alt="Publish Asset"></div>
-        </div></li>
-        <li><div>
-          Select the bootcamp catalog and click <strong>Next</strong>
-         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/publish2.png" alt="Publish Step 2"></div>
-        </div></li>
-        <li><div>On the Review Assets page, click <strong>Publish</strong>. This takes a few minutes. Wait for "Request to publish assets completed".</div></li>
-      </ol>
-
-      <p>After publishing, the catalog will show updated metadata and governance artifacts for the selected asset.</p>
+      <h4>4.6.4 Instructor-Published Asset in the Catalog</h4>
+      <div class="callout note" style="border-left-color:#57606a;background:#fafbfc;">The instructor has already completed the publish step in advance. When you navigate to the bootcamp catalog you will see the enriched asset already available with business terms, AI-generated descriptions, data quality scores, classifications (PII / SPI), and active data protection rules.</div>
+      <p>When you return to the catalog, metadata and governance artifacts are present on the selected asset:</p>
       <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/2026-03-18-18-54-45-pasted-vscode.png" alt="Published Asset in Catalog"></div>
 
       <!-- ── 5. Verify ── -->
       <h2 id="verify">5. Verify Data Protection</h2>
 
-      <h3>5.1 Verify Data Protection Rule is Being Enforced (Students)</h3>
-      <p>To verify the rule is working, use a non-admin user account (any user in the Techzone resource group aside from the instructor account).</p>
+      <h3>5.1 See Data Protection in Action</h3>
+      <p>The instructor will demonstrate data protection enforcement live. Here is what is happening and what to observe.</p>
 
-      <ol class="steps">
-        <li><div>Make sure you are in the <strong>watsonx.data instance account</strong></div></li>
-        <li><div>Go to the <strong>watsonx.data Intelligence</strong> instance</div></li>
-        <li><div>Open the <strong>Bootcamp Catalog</strong></div></li>
-        <li><div>
-          Open the data asset from watsonx.data and click the <strong>Asset</strong> tab
-         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.25.49%E2%80%AFPM.png" alt="Asset Tab Screenshot"></div>
-        </div></li>
-        <li><div>
-          In another window, go to the <strong>watsonx.data</strong> instance (Resource List → Databases → watsonx.data → Open web console)
-        </div></li>
-        <li><div>
-          Go to <strong>Query Workspace</strong> → navigate to <code>postgres_catalog → bankdemo → customers_table</code> → generate a Select Statement → run on the Presto engine
-         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.43.43%E2%80%AFPM.png" alt="Query Workspace Screenshot"></div>
-        </div></li>
-        <li><div>
-          Scroll over to the <code>email</code> and <code>ssn</code> columns to observe masking in place:
-          <ul>
-            <li>Email address is masked</li>
-            <li>SSN field is masked with different (obfuscated) values</li>
-          </ul>
-         <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.50.32%E2%80%AFPM.png" alt="Masked Data Screenshot"></div>
-        </div></li>
-      </ol>
+      <p>In the watsonx.data <strong>Query Workspace</strong>, the following query is run against the Postgres data source on <strong>presto_engine</strong> — the Presto engine that has the IBM Knowledge Catalog integration active:</p>
+      <pre><code>SELECT *
+FROM postgres_catalog_20260922_1602.bankdemo.customers_table
+LIMIT 10;</code></pre>
+
+      <p>The results show the <code>customers_table</code> data with masking enforced on sensitive columns:</p>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/masked-query-results.png" alt="Masked Query Results"></div>
+
+      <p><strong>What to look at in the results:</strong></p>
+      <table>
+        <tr><th>Column</th><th>What you see</th><th>Why</th></tr>
+        <tr><td><code>ssn</code></td><td>Format-preserved fake values e.g. <code>758-07-4967</code></td><td>Business term <code>SSN</code> triggered the "Protect US Social Security Numbers" rule</td></tr>
+        <tr><td><code>email</code></td><td>Obfuscated values e.g. <code>zhWhc_4Ak6N…</code></td><td>Business term <code>Email</code> triggered the "Protect Email Addresses" rule</td></tr>
+        <tr><td>All other columns</td><td>Real values</td><td>No matching business term → no protection rule fires</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Key point:</strong> The raw data in Postgres is unchanged. The masking is applied dynamically at query time by the Presto engine — enforced because the IBM Knowledge Catalog integration is active and the business terms <code>SSN</code> and <code>Email</code> are assigned to those columns.
+      </div>
+
+      <h3>Understanding Your Results</h3>
+      <p>What you see depends on the access role your account has on the Postgres data source. Both outcomes below are valid:</p>
+      <table>
+        <tr><th>What you see</th><th>What it means</th></tr>
+        <tr>
+          <td><strong>Email and SSN show realistic-looking but fake values</strong></td>
+          <td>✅ Data protection rules are working. Your account has a non-admin (<code>User</code> / <code>Reader</code>) role. The masking rule matched the <code>Email</code> and <code>SSN</code> business terms and obfuscated the values before returning them.</td>
+        </tr>
+        <tr>
+          <td><strong>Email and SSN show real values</strong></td>
+          <td>Your account has <code>Admin</code> access on the Postgres data source. Admin/owner accounts are intentionally exempt from data protection rules — this is by design. In a production deployment, business analysts would always have non-admin access and would see masked data.</td>
+        </tr>
+      </table>
+
+      <div class="callout note" style="border-left-color:#57606a;background:#fafbfc;">
+        The masking is not applied to the raw data in Postgres — it never changes. Masking is applied dynamically at query time based on your identity and the business terms assigned to each column. The same query, run by two different users with different roles, returns different results. That is the governance model in action.
+      </div>
+
+      <p>You can also verify by opening the <strong>Bootcamp Catalog</strong> in watsonx.data Intelligence and viewing the asset — the <code>ssn</code> and <code>email</code> columns are flagged as masked:</p>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.25.49%E2%80%AFPM.png" alt="Asset view showing masked ssn and email columns"></div>
+
+      <p>And the Query Workspace showing the Generate SELECT step before running:</p>
+      <div class="img-block"><img src="Data_Intelligence_Governance/Data_Intelligence_Governance/attachments/Screenshot%202026-06-09%20at%2012.43.43%E2%80%AFPM.png" alt="Query Workspace Generate SELECT"></div>
 
       <div class="callout success">
         You have demonstrated that watsonx.data allows data stewards to enrich and catalog data just like any other data in their enterprise, and that governance rules (masking) are enforced at query time.

@@ -582,8 +582,9 @@
          <div class="img-block"><img src="NL2SQL_Business/attachments/CreateAgent-3.png" alt="Configure Agent"></div>
         </div></li>
         <li><div>
-          Click <strong>Profile</strong> and create a Welcome Message:<br>
+          You should now see the agent configuration page. Click <strong>Deploy</strong> in the top navigation bar, then select the <strong>Orchestrate Chat</strong> dropdown. Click <strong>Edit</strong> and create a <strong>Welcome Message</strong>:<br>
           <code>Welcome to Data Insights! Ask me about customers, accounts, holdings, or transactions</code>
+         <div class="img-block"><img src="NL2SQL_Business/attachments/agent_configuration.png" alt="Agent Configuration"></div>
         </div></li>
         <li><div>
           Add 3 Quick Start Prompts:
@@ -592,10 +593,6 @@ Show me 5 IBM holdings
 What's the total balance across all accounts?</code></pre>
          <div class="img-block"><img src="NL2SQL_Business/attachments/welcome_prompt.png" alt="Welcome Prompt"></div>
         </div></li>
-        <li><div>
-          Select <strong>React</strong> as Agent Style. ReAct (Reasoning + Acting) is the right choice because this agent requires multi-step reasoning, tool orchestration, dynamic decision making, and iterative refinement.
-         <div class="img-block"><img src="NL2SQL_Business/attachments/agent_style.png" alt="Agent Style"></div>
-        </div></li>
       </ol>
 
       <h3 id="step44">4.4 Add watsonx.data MCP Server Tools</h3>
@@ -603,36 +600,14 @@ What's the total balance across all accounts?</code></pre>
 
       <ol class="steps">
         <li><div>
-          In the <strong>Toolset</strong> section, under <strong>Tools</strong>, click <strong>Add tool</strong>
+          First, confirm the MCP server is available. In the <strong>Toolset</strong> section, under <strong>Tools</strong>, click <strong>Add tool</strong>.
          <div class="img-block"><img src="NL2SQL_Business/attachments/add_tool.png" alt="Add Tool"></div>
-        </div></li>
-        <li><div>
-          Select <strong>MCP server</strong>
+          Select <strong>MCP server</strong>.
          <div class="img-block"><img src="NL2SQL_Business/attachments/mcp_server.png" alt="MCP Server"></div>
+          Select <strong>Manage MCP Servers</strong> and confirm <code>watsonx-data-mcp-server</code> is listed. Close the window.
         </div></li>
         <li><div>
-          Click <strong>Add MCP Server</strong>
-         <div class="img-block"><img src="NL2SQL_Business/attachments/add_mcp_server.png" alt="Add MCP Server"></div>
-        </div></li>
-        <li><div>
-          Select <code>Remote MCP server</code> and click <strong>Next</strong>
-         <div class="img-block"><img src="NL2SQL_Business/attachments/add_remote_mcp_server.png" alt="Add Remote MCP Server"></div>
-        </div></li>
-        <li><div>
-          Fill in the server details:
-          <table>
-            <tr><th>Field</th><th>Value</th></tr>
-            <tr><td>Server name</td><td><code>watsonx-data-mcp-server</code></td></tr>
-            <tr><td>MCP Server URL</td><td><code>https://&lt;console-host&gt;/api/v1/watsonxdata/mcp</code> (use <code>WXDATA_MCP_ENDPOINT</code> from env.txt)</td></tr>
-            <tr><td>Transport type</td><td><code>Streamable HTTP</code></td></tr>
-            <tr><td>Select Connection</td><td>The connection created in step 4.2</td></tr>
-          </table>
-          Click <strong>Connect</strong>
-         <div class="img-block"><img src="NL2SQL_Business/attachments/add_mcp_server_details.png" alt="MCP Server Details"></div>
-          <div class="callout warn">If connection fails: confirm authentication in your Connection settings and verify <code>WXDATA_MCP_ENDPOINT</code> is accurate.</div>
-        </div></li>
-        <li><div>
-          In <strong>Add tools and manage MCP servers</strong>, search for and add each of these tools:
+          Now add the tools. Click <strong>Add tool</strong> again, then in <strong>Local Instance</strong>, search for and add each of the following:
           <div class="tools-grid">
             <div class="tool-item"><code>watsonxdata-list-engines</code><p>List available Presto and Spark compute engines</p></div>
             <div class="tool-item"><code>watsonxdata-list-schemas</code><p>List database schemas in a catalog</p></div>
@@ -640,7 +615,7 @@ What's the total balance across all accounts?</code></pre>
             <div class="tool-item"><code>watsonxdata-describe-table</code><p>Get detailed schema and metadata for a table</p></div>
             <div class="tool-item"><code>watsonxdata-execute-select</code><p>Execute read-only SELECT queries against watsonx.data</p></div>
           </div>
-          Select each tool and click <strong>Add to agent</strong>
+          Select each tool and click <strong>Add to agent</strong>.
          <div class="img-block"><img src="NL2SQL_Business/attachments/add_tools_mcp_server.png" alt="Add Tools from MCP Server"></div>
         </div></li>
       </ol>
@@ -712,7 +687,7 @@ What's the total balance across all accounts?</code></pre>
           <p class="q">Who are the 5 oldest customers?</p>
           <p class="expected"><strong>Expected SQL generated:</strong></p>
           <pre style="margin:0 0 8px;"><code>SELECT customer_id, name, age
-FROM postgres_catalog.bankdemo.customers_table
+FROM postgres_catalog_20260922_1602.bankdemo.customers_table
 ORDER BY age DESC
 LIMIT 5</code></pre>
           <p class="expected">Returns: list of oldest customers, key insights, suggested follow-up questions.</p>
@@ -723,13 +698,13 @@ LIMIT 5</code></pre>
       <div class="test-card">
         <div class="test-card-header">Test 2 – Investment Analysis</div>
         <div class="test-card-body">
-          <p class="q">Who are the top 5 customers with the highest total investment value?</p>
+          <p class="q">Who are the top 5 customers with the highest total investment value in holdings?</p>
           <p class="expected"><strong>Expected SQL generated:</strong></p>
           <pre style="margin:0 0 8px;"><code>SELECT c.customer_id, c.name, SUM(h.holding_amt) AS total_investment
-FROM iceberg_data.clients_schema_xxx.holdings_table h
-INNER JOIN iceberg_data.clients_schema_xxx.accounts_table a
+FROM iceberg_data_20260513_1540.clients_schema_instructor.holdings_table h
+INNER JOIN iceberg_data_20260513_1540.clients_schema_instructor.accounts_table a
   ON h.account_id = a.account_id
-INNER JOIN postgres_catalog.bankdemo.customers_table c
+INNER JOIN postgres_catalog_20260922_1602.bankdemo.customers_table c
   ON a.customer_id = c.customer_id
 GROUP BY c.customer_id, c.name
 ORDER BY total_investment DESC
@@ -745,10 +720,10 @@ LIMIT 5</code></pre>
           <p class="q">List all customers who have invested in IBM and show their holdings</p>
           <p class="expected"><strong>Expected SQL generated:</strong></p>
           <pre style="margin:0 0 8px;"><code>SELECT c.customer_id, c.name, h.asset_ticker, h.holding_amt
-FROM iceberg_data.clients_schema_xxx.holdings_table h
-INNER JOIN iceberg_data.clients_schema_xxx.accounts_table a
+FROM iceberg_data_20260513_1540.clients_schema_instructor.holdings_table h
+INNER JOIN iceberg_data_20260513_1540.clients_schema_instructor.accounts_table a
   ON h.account_id = a.account_id
-INNER JOIN postgres_catalog.bankdemo.customers_table c
+INNER JOIN postgres_catalog_20260922_1602.bankdemo.customers_table c
   ON a.customer_id = c.customer_id
 WHERE h.asset_ticker = 'IBM'
 ORDER BY h.holding_amt DESC
@@ -765,13 +740,18 @@ LIMIT 100</code></pre>
 
       <h3 id="step52">5.2 Deploy the Agent</h3>
       <ol class="steps">
-        <li><div>Click <strong>Deploy</strong> button in the top right corner
+        <li><div>Click <strong>Deploy</strong> in the top navigation bar.
          <div class="img-block"><img src="NL2SQL_Business/attachments/deploy_agent.png" alt="Deploy Agent"></div>
         </div></li>
-        <li><div>Review the <strong>Pre-deployment summary</strong> and click <strong>Deploy</strong>
+        <li><div>Click <strong>Deploy to Live</strong> → <strong>Create New Version</strong> and fill in:
+          <ul>
+            <li><strong>Version Name:</strong> <code>Prod Agent - [Initials]</code></li>
+            <li><strong>Version Number:</strong> <code>1.0.0</code></li>
+          </ul>
+          Review the pre-deployment summary and click <strong>Create</strong>.
          <div class="img-block"><img src="NL2SQL_Business/attachments/predeployment.png" alt="Pre-deployment Summary"></div>
         </div></li>
-        <li><div>Wait 1–2 minutes for the "Deployed successfully" message</div></li>
+        <li><div>Wait 1–2 minutes for the "Deployed successfully" message.</div></li>
       </ol>
 
       <h3 id="step53">5.3 Production Testing</h3>

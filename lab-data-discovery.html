@@ -397,27 +397,63 @@
       <p>FinWin Bank's data lives across four catalogs in watsonx.data. Each serves a different purpose:</p>
       <table>
         <tr><th>Catalog</th><th>What it is</th><th>What's in it</th></tr>
-        <tr><td><code>postgres_catalog</code></td><td>Operational database</td><td>Live customer records (<code>customers_table</code>)</td></tr>
-        <tr><td><code>nz_catalog</code></td><td>Legacy data warehouse (Netezza)</td><td>Current-year equity transactions (2025)</td></tr>
-        <tr><td><code>iceberg_data</code></td><td>Modern lakehouse</td><td>Historical transactions (2019–2024), accounts, holdings</td></tr>
-        <tr><td><code>hive_catalog</code></td><td>Raw data lake</td><td>Source files before processing</td></tr>
+        <tr><td><code>postgres_catalog_20260922_1602</code></td><td>Operational database</td><td>Live customer records (<code>customers_table</code>)</td></tr>
+        <tr><td><code>nz_catalog_20260922_1602</code></td><td>Legacy data warehouse (Netezza)</td><td>Current-year equity transactions (2025)</td></tr>
+        <tr><td><code>iceberg_data_20260922_1602</code></td><td>Modern lakehouse</td><td>Historical transactions (2019–2024), accounts, holdings — offloaded and optimized</td></tr>
+        <tr><td><code>hive_catalog</code></td><td>Raw data lake</td><td>Source files (accounts, holdings, tax rates) before processing</td></tr>
       </table>
       <p>The power of watsonx.data is that you can query across all of these from a single interface — a financial advisor can look up a customer in Postgres, check their trading history in Iceberg, and see current-year activity in Netezza, all in one place.</p>
 
+      <h3>Data Architecture</h3>
+      <!-- Rendered from mermaid graph TB in README -->
+      <div style="background:#f7f8fa;border:1px solid #e5e7eb;border-radius:8px;padding:28px 24px;margin:16px 0;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
+          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>PostgreSQL</strong><br><span style="color:#57606a;font-size:12px;">Customer Data</span></div>
+          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>Netezza</strong><br><span style="color:#57606a;font-size:12px;">Current Year<br>Transactions</span></div>
+          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>Iceberg</strong><br><span style="color:#57606a;font-size:12px;">Historical Data<br>2019–2024</span></div>
+          <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 18px;background:#fff;text-align:center;font-size:13px;min-width:110px;"><strong>Hive</strong><br><span style="color:#57606a;font-size:12px;">Source Files</span></div>
+        </div>
+        <div style="text-align:center;color:#adb5bd;font-size:18px;margin-bottom:12px;">↓ &nbsp; ↓ &nbsp; ↓ &nbsp; ↓</div>
+        <div style="text-align:center;margin-bottom:12px;">
+          <div style="display:inline-block;background:#4CAF50;color:#fff;border-radius:6px;padding:12px 28px;font-size:13px;font-weight:600;">Presto Query Engine<br>Federated Queries</div>
+        </div>
+        <div style="text-align:center;color:#adb5bd;font-size:18px;margin-bottom:12px;">↓</div>
+        <div style="text-align:center;">
+          <div style="display:inline-block;background:#2196F3;color:#fff;border-radius:6px;padding:10px 28px;font-size:13px;font-weight:600;">Business Insights</div>
+        </div>
+      </div>
+
       <h3 id="star-schema">Star Schema Overview</h3>
-      <p>Your Iceberg schema contains a <strong>star schema</strong> — a common analytics pattern where a central <strong>fact table</strong> records business events, surrounded by <strong>dimension tables</strong> that provide context.</p>
-      <table>
-        <tr><th>Table</th><th>Type</th><th>Description</th></tr>
-        <tr><td><code>fact_transactions</code></td><td>Fact</td><td>Core trading data — every stock trade made by FinWin clients</td></tr>
-        <tr><td><code>dim_account</code></td><td>Dimension</td><td>Account details (type, risk level, balance, experience)</td></tr>
-        <tr><td><code>dim_stock</code></td><td>Dimension</td><td>Stock info (ticker, sector, market cap)</td></tr>
-        <tr><td><code>dim_exchange</code></td><td>Dimension</td><td>Exchange details (NYSE, NASDAQ, country, timezone)</td></tr>
-        <tr><td><code>dim_date</code></td><td>Dimension</td><td>Date breakdowns (year, quarter, month, week, holiday flags)</td></tr>
-        <tr><td><code>customers_table</code></td><td>Reference (Postgres)</td><td>Live customer records in a separate catalog</td></tr>
-      </table>
+      <p>Your Iceberg schema (<code>iceberg_data_20260922_1602.netezza_offload_instructor</code>) contains a <strong>star schema</strong> — a common analytics pattern where a central <strong>fact table</strong> records business events, surrounded by <strong>dimension tables</strong> that provide context.</p>
+      <!-- Rendered from mermaid graph LR in README -->
+      <div style="background:#f7f8fa;border:1px solid #e5e7eb;border-radius:8px;padding:24px;margin:16px 0;overflow-x:auto;">
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;font-size:13px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
+          <div style="background:#ff9800;color:#fff;border-radius:6px;padding:12px 14px;text-align:center;min-width:110px;font-weight:600;">fact_transactions<br><span style="font-weight:400;font-size:11px;">Core Trading Data</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin:0 8px;align-items:flex-start;">
+            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ account_id</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_account<br><span style="color:#57606a;font-size:11px;">Account Details</span></div></div>
+            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ stock_id&nbsp;&nbsp;</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_stock<br><span style="color:#57606a;font-size:11px;">Stock Info</span></div></div>
+            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ date_id&nbsp;&nbsp;&nbsp;</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_date<br><span style="color:#57606a;font-size:11px;">Time Dimensions</span></div></div>
+            <div style="display:flex;align-items:center;gap:4px;"><span style="color:#adb5bd;font-size:11px;">→ exchange_id</span><div style="border:1px solid #e5e7eb;border-radius:4px;padding:6px 10px;background:#fff;white-space:nowrap;">dim_exchange<br><span style="color:#57606a;font-size:11px;">Exchange Info</span></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:4px;"><span style="color:#adb5bd;font-size:11px;">dim_account → customer_id →</span><div style="background:#2196F3;color:#fff;border-radius:4px;padding:6px 10px;white-space:nowrap;">customers_table<br><span style="font-size:11px;opacity:0.85;">postgres_catalog</span></div></div>
+        </div>
+      </div>
 
       <h3>Lab Workflow</h3>
-      <p>Explore Infrastructure → Understand Star Schema → Preview Data → Query Workspace → Business Queries → Review History</p>
+      <!-- Rendered from mermaid graph LR in README -->
+      <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap;margin:16px 0;font-size:12px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
+        <div style="background:#e3f2fd;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #bbdefb;">Explore<br>Data Manager</div>
+        <div style="color:#adb5bd;padding:0 6px;">→</div>
+        <div style="background:#f3e5f5;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #e1bee7;">Understand<br>Star Schema</div>
+        <div style="color:#adb5bd;padding:0 6px;">→</div>
+        <div style="background:#e8f5e9;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #c8e6c9;">Preview<br>Data</div>
+        <div style="color:#adb5bd;padding:0 6px;">→</div>
+        <div style="background:#fff3e0;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #ffe0b2;">Use Query<br>Workspace</div>
+        <div style="color:#adb5bd;padding:0 6px;">→</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #f8bbd0;">Run Business<br>Queries</div>
+        <div style="color:#adb5bd;padding:0 6px;">→</div>
+        <div style="background:#e0f2f1;border-radius:6px;padding:10px 14px;text-align:center;border:1px solid #b2dfdb;">Review Query<br>History</div>
+      </div>
 
       <!-- ── Step 1 ── -->
       <h2 id="step1">Step 1 – Exploring the Infrastructure &amp; Data Manager</h2>
@@ -551,27 +587,29 @@
       <!-- ── Step 5 ── -->
       <h2 id="step5">Step 5 – Business Questions with SQL</h2>
       <p>Below are five business questions a FinWin Bank analyst might ask, each answered by a SQL query that <strong>joins across multiple tables</strong>. Copy each query into the Query Workspace and run it.</p>
-      <div class="callout warn">Replace <code>&lt;SCHEMA&gt;</code> with your Iceberg schema name (e.g., <code>netezza_offload_viv</code>).</div>
+      <div class="callout">
+        The queries below use the actual catalog names for this environment. If your environment has different names, run <code>SHOW CATALOGS;</code> in the Query Workspace to confirm them, or check <code>ICEBERG_CATALOG</code>, <code>POSTGRES_CATALOG</code>, and <code>NETEZZA_CATALOG</code> in your <code>env.txt</code> file.<br>
+        <strong>Engine:</strong> Select <strong>presto_engine</strong> when running queries.
+      </div>
 
       <h3>5.1 Customer Activity — Which customers traded the most last year?</h3>
       <p>Joins transactions → accounts → customers (across Iceberg and Postgres) to find the most active traders.</p>
       <pre><code>SELECT
-    c.first_name,
-    c.last_name,
+    c.name,
     c.city,
     c.state,
     da.account_type,
     COUNT(ft.transaction_id) AS total_trades,
     SUM(ft.total_value) AS total_value
-FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_account da
+FROM iceberg_data_20260922_1602.netezza_offload_instructor.fact_transactions ft
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_account da
     ON ft.account_id = da.account_id
-JOIN postgres_catalog.bankdemo.customers_table c
+JOIN postgres_catalog_20260922_1602.bankdemo.customers_table c
     ON da.account_id = c.customer_id
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_date dd
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_date dd
     ON ft.date_id = dd.date_id
 WHERE dd.year = 2024
-GROUP BY c.first_name, c.last_name, c.city, c.state, da.account_type
+GROUP BY c.name, c.city, c.state, da.account_type
 ORDER BY total_value DESC
 LIMIT 10;</code></pre>
       <p><strong>Returns:</strong> Top 10 customers by trading value in 2024, with names, locations, account types, trade counts, and total values.</p>
@@ -583,8 +621,8 @@ LIMIT 10;</code></pre>
     COUNT(ft.transaction_id) AS trade_count,
     ROUND(AVG(ft.price), 2) AS avg_price,
     ROUND(SUM(ft.total_value), 2) AS total_volume
-FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_stock ds
+FROM iceberg_data_20260922_1602.netezza_offload_instructor.fact_transactions ft
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_stock ds
     ON ft.stock_id = ds.stock_id
 GROUP BY ds.sector
 ORDER BY total_volume DESC;</code></pre>
@@ -598,10 +636,10 @@ ORDER BY total_volume DESC;</code></pre>
     dd.year,
     COUNT(ft.transaction_id) AS trade_count,
     ROUND(SUM(ft.total_value), 2) AS total_volume
-FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_exchange de
+FROM iceberg_data_20260922_1602.netezza_offload_instructor.fact_transactions ft
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_exchange de
     ON ft.exchange_id = de.exchange_id
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_date dd
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_date dd
     ON ft.date_id = dd.date_id
 GROUP BY de.exchange_name, de.country, dd.year
 ORDER BY dd.year, total_volume DESC;</code></pre>
@@ -616,10 +654,10 @@ ORDER BY dd.year, total_volume DESC;</code></pre>
     COUNT(ft.transaction_id) AS trade_count,
     ROUND(AVG(ft.quantity), 0) AS avg_shares_per_trade,
     ROUND(AVG(ft.total_value), 2) AS avg_trade_value
-FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions ft
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_account da
+FROM iceberg_data_20260922_1602.netezza_offload_instructor.fact_transactions ft
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_account da
     ON ft.account_id = da.account_id
-JOIN iceberg_data.&lt;SCHEMA&gt;.dim_date dd
+JOIN iceberg_data_20260922_1602.netezza_offload_instructor.dim_date dd
     ON ft.date_id = dd.date_id
 GROUP BY da.risk_level, da.account_type, dd.year
 ORDER BY dd.year, da.risk_level;</code></pre>
@@ -635,24 +673,24 @@ ORDER BY dd.year, da.risk_level;</code></pre>
     SUM(ft.total_value) AS total_value
 FROM (
     SELECT account_id, date_id, total_value
-    FROM iceberg_data.&lt;SCHEMA&gt;.fact_transactions
+    FROM iceberg_data_20260922_1602.netezza_offload_instructor.fact_transactions
     UNION ALL
     SELECT account_id, date_id, total_value
-    FROM nz_catalog.equity_transactions_ly.fact_transactions
+    FROM nz_catalog_20260922_1602.equity_transactions_ly.fact_transactions
 ) ft
 JOIN (
     SELECT account_id, account_type, risk_level
-    FROM iceberg_data.&lt;SCHEMA&gt;.dim_account
+    FROM iceberg_data_20260922_1602.netezza_offload_instructor.dim_account
     UNION ALL
     SELECT account_id, account_type, risk_level
-    FROM nz_catalog.equity_transactions_ly.dim_account
+    FROM nz_catalog_20260922_1602.equity_transactions_ly.dim_account
 ) da ON ft.account_id = da.account_id
 JOIN (
     SELECT date_id, year
-    FROM iceberg_data.&lt;SCHEMA&gt;.dim_date
+    FROM iceberg_data_20260922_1602.netezza_offload_instructor.dim_date
     UNION ALL
     SELECT date_id, year
-    FROM nz_catalog.equity_transactions_ly.dim_date
+    FROM nz_catalog_20260922_1602.equity_transactions_ly.dim_date
 ) dd ON ft.date_id = dd.date_id
 GROUP BY da.account_id, da.account_type, da.risk_level, dd.year
 ORDER BY total_value DESC

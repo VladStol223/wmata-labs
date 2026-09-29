@@ -311,6 +311,38 @@
       color: #adb5bd;
       margin-top: 60px;
     }
+    /* ── Lightbox ── */
+    .lb-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .lb-overlay.active { display: flex; }
+    .lb-overlay img {
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 6px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      cursor: default;
+    }
+    .lb-close {
+      position: fixed;
+      top: 18px;
+      right: 24px;
+      color: #fff;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.8;
+      user-select: none;
+    }
+    .lb-close:hover { opacity: 1; }
+    .img-block img { cursor: zoom-in; }
   </style>
 </head>
 <body>
@@ -456,10 +488,75 @@
       </ol>
 
       <h3 id="step42">4.2 Configure watsonx.data Connection</h3>
-      <p>Before the agent can query data, it needs a connection to watsonx.data.</p>
-      <div class="callout">
-        Follow the <strong>watsonx.data remote MCP Server connection</strong> guide provided in the <code>watsonxdata_connection.md</code> file in the lab folder. You will need the <code>WXDATA_MCP_ENDPOINT</code> value from your <code>env.txt</code> credentials file.
+      <p>Before the agent can query data, it needs a connection to watsonx.data. Complete all three prerequisite sections below, then configure the connection in watsonx Orchestrate.</p>
+
+      <div class="callout warn">
+        You will need your <code>env.txt</code> credentials file (from <code>student_creds/</code>) open throughout this section. It contains <code>WXD_USER</code>, <code>WXD_API_KEY</code>, <code>WXDATA_CRN</code>, and <code>WXDATA_MCP_ENDPOINT</code>.
       </div>
+
+      <h4>Prerequisite 1 — Generate an ApiKey Authorization Token</h4>
+      <p>The API key cannot be used directly — you must Base64-encode it first.</p>
+      <ol>
+        <li>Open your <code>env.txt</code> file and locate <code>WXD_USER</code> and <code>WXD_API_KEY</code>.</li>
+        <li>Run the appropriate command for your OS to generate the token:
+          <p><strong>Mac / Linux:</strong></p>
+          <pre><code>echo -n "&lt;WXD_USER&gt;:&lt;WXD_API_KEY&gt;" | base64</code></pre>
+          <p><strong>Windows PowerShell:</strong></p>
+          <pre><code>[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("&lt;WXD_USER&gt;:&lt;WXD_API_KEY&gt;"))</code></pre>
+          <div class="callout note" style="border-left-color:#57606a;background:#fafbfc;">Replace <code>&lt;WXD_USER&gt;</code> and <code>&lt;WXD_API_KEY&gt;</code> with your actual values.</div>
+        </li>
+        <li>Copy the output token and save it in <code>env.txt</code> as <code>WXDATA_TOKEN</code>.</li>
+      </ol>
+
+      <h4>Prerequisite 2 — Locate Your watsonx.data Instance CRN</h4>
+      <p>Find <code>WXDATA_CRN</code> in your <code>env.txt</code> file. It looks like:</p>
+      <pre><code>WXDATA_CRN="crn:v1:bluemix:public:lakehouse:us-south:a/1234567890abcdef:..."</code></pre>
+
+      <h4>Prerequisite 3 — Identify Your MCP Server Endpoint</h4>
+      <p>Find <code>WXDATA_MCP_ENDPOINT</code> in your <code>env.txt</code> file, or construct it from the table below:</p>
+      <table>
+        <tr><th>Region</th><th>Location</th><th>Console Host</th></tr>
+        <tr><td>North America</td><td>Washington DC, USA</td><td><code>us-east.lakehouse.cloud.ibm.com</code></td></tr>
+        <tr><td>North America</td><td>Dallas, USA</td><td><code>us-south.lakehouse.cloud.ibm.com</code></td></tr>
+        <tr><td>North America</td><td>Toronto, Canada</td><td><code>console-ibm-cator.lakehouse.saas.ibm.com</code></td></tr>
+        <tr><td>Europe</td><td>Frankfurt, Germany</td><td><code>eu-de.lakehouse.cloud.ibm.com</code></td></tr>
+        <tr><td>Europe</td><td>London, UK</td><td><code>eu-gb.lakehouse.cloud.ibm.com</code></td></tr>
+        <tr><td>Asia Pacific</td><td>Sydney, Australia</td><td><code>console-ibm-ausyd.lakehouse.saas.ibm.com</code></td></tr>
+        <tr><td>Asia Pacific</td><td>Tokyo, Japan</td><td><code>jp-tok.lakehouse.cloud.ibm.com</code></td></tr>
+      </table>
+      <p>Your full endpoint is: <code>https://&lt;console-host&gt;/api/v1/watsonxdata/mcp</code></p>
+
+      <h4>Configure the Connection in watsonx Orchestrate</h4>
+      <ol class="steps">
+        <li><div>
+          In watsonx Orchestrate, click the hamburger menu (☰) → <strong>Manage</strong> → <strong>Connections</strong>, then click <strong>Add Connection</strong>.
+          <div class="img-block"><img src="NL2SQL_Business/attachments/add_connection.png" alt="Add Connection"></div>
+          <div class="img-block"><img src="NL2SQL_Business/attachments/add_connection_type.png" alt="Add Connection Type"></div>
+        </div></li>
+        <li><div>
+          Enter a <strong>Connection ID</strong>: <code>watsonx_data_YOUR_NAME</code> (e.g. <code>watsonx_data_john_smith</code>), then click <strong>Save and continue</strong>.
+          <div class="img-block"><img src="NL2SQL_Business/attachments/connection_id.png" alt="Connection ID"></div>
+          Click <strong>Continue</strong>.
+          <div class="img-block"><img src="NL2SQL_Business/attachments/connection_continue.png" alt="Connection Continue"></div>
+        </div></li>
+        <li><div>
+          <strong>Draft environment — </strong>select <strong>Key Value Pair</strong> authentication, then add two credentials:
+          <table>
+            <tr><th>Key</th><th>Value</th></tr>
+            <tr><td><code>authorization</code></td><td><code>Basic &lt;WXDATA_TOKEN&gt;</code> — include "Basic " (with a space) before the token</td></tr>
+            <tr><td><code>authinstanceid</code></td><td>Your <code>WXDATA_CRN</code> value</td></tr>
+          </table>
+          Click <strong>Next</strong>.
+          <div class="img-block"><img src="NL2SQL_Business/attachments/draft_connection.png" alt="Draft Connection"></div>
+          <div class="img-block"><img src="NL2SQL_Business/attachments/connection_details_next.png" alt="Connection Details Next"></div>
+        </div></li>
+        <li><div>
+          <strong>Live environment — </strong>repeat the same two credentials, then click <strong>Finish</strong>. Wait for <em>"Connection Creation successful"</em>.
+          <div class="img-block"><img src="NL2SQL_Business/attachments/live_data_connection.png" alt="Live Data Connection"></div>
+          <div class="img-block"><img src="NL2SQL_Business/attachments/live_data_connection_details.png" alt="Live Connection Details"></div>
+        </div></li>
+      </ol>
+      <div class="callout success" style="border-left-color:#22a06b;">Connection is configured. Return here and continue with step 4.3.</div>
 
       <h3 id="step43">4.3 Create New Agent</h3>
       <ol class="steps">
@@ -560,16 +657,40 @@ What's the total balance across all accounts?</code></pre>
       </ol>
 
       <h3 id="step46">4.6 Add Guidelines</h3>
-      <p>While behavior instructions provide the "how," guidelines provide the "must/must not" boundaries.</p>
-      <ol class="steps">
-        <li><div>Click <strong>Add Guideline</strong>
-         <div class="img-block"><img src="NL2SQL_Business/attachments/add_guideline.png" alt="Add Guideline"></div>
-        </div></li>
-        <li><div>For each rule, configure <strong>Name</strong>, <strong>Condition</strong>, and <strong>Action</strong> values from the <code>assets/Guidelines.md</code> file</div></li>
-        <li><div>Click <strong>Save</strong>
-         <div class="img-block"><img src="NL2SQL_Business/attachments/rule_details.png" alt="Rule Details"></div>
-        </div></li>
-      </ol>
+      <p>While behavior instructions provide the "how," guidelines provide the "must/must not" boundaries. Add each rule below by clicking <strong>Add Guideline</strong>, filling in the three fields, and clicking <strong>Save</strong>.</p>
+      <div class="img-block"><img src="NL2SQL_Business/attachments/add_guideline.png" alt="Add Guideline"></div>
+
+      <table>
+        <tr><th>Rule name</th><th>Condition</th><th>Action</th></tr>
+        <tr>
+          <td><code>enforce_select_only_queries</code></td>
+          <td>When constructing or executing any SQL query</td>
+          <td>MUST only generate and execute SELECT statements. Immediately reject any INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, TRUNCATE, MERGE, GRANT, or REVOKE statements. Explain to user that only read-only queries are permitted.</td>
+        </tr>
+        <tr>
+          <td><code>clarify_ambiguous_requests</code></td>
+          <td>When user question has multiple possible interpretations or missing key details</td>
+          <td>MUST ask clarifying questions with 2–4 specific options before proceeding. Do not guess at user intent. Provide numbered interpretation choices and ask user to select which matches their need.</td>
+        </tr>
+        <tr>
+          <td><code>enforce_tool_sequence</code></td>
+          <td>When discovering schema and constructing queries</td>
+          <td>MUST follow this tool sequence: watsonxdata-list-schemas → watsonxdata-list-tables → watsonxdata-describe-table → watsonxdata-execute-select. Do not skip steps. Always verify table structure before constructing queries.</td>
+        </tr>
+        <tr>
+          <td><code>apply_default_limit</code></td>
+          <td>When constructing non-aggregation queries</td>
+          <td>MUST include LIMIT clause with default value of 100 rows (maximum 1000 rows).</td>
+        </tr>
+        <tr>
+          <td><code>provide_business_insights</code></td>
+          <td>When presenting any query results</td>
+          <td>MUST provide insights and interpretation for all metrics. Do not present raw data without explanation. Include key findings, patterns, and suggest 2–4 relevant follow-up questions. Format currency with $ and thousand separators.</td>
+        </tr>
+      </table>
+
+      <p>After adding all five rules, click <strong>Save</strong>.</p>
+      <div class="img-block"><img src="NL2SQL_Business/attachments/rule_details.png" alt="Rule Details"></div>
 
       <!-- ── 5. Test ── -->
       <h2 id="test">5. Test the NL2SQL Agent</h2>
@@ -780,5 +901,22 @@ LIMIT 100</code></pre>
 
   <footer>Made with IBM Bob</footer>
 
+  <!-- Lightbox -->
+  <div class="lb-overlay" id="lb" onclick="this.classList.remove('active')">
+    <span class="lb-close" onclick="document.getElementById('lb').classList.remove('active')">&times;</span>
+    <img id="lb-img" src="" alt="" onclick="event.stopPropagation()">
+  </div>
+  <script>
+    document.querySelectorAll('.img-block img').forEach(function(img) {
+      img.addEventListener('click', function() {
+        document.getElementById('lb-img').src = this.src;
+        document.getElementById('lb-img').alt = this.alt;
+        document.getElementById('lb').classList.add('active');
+      });
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') document.getElementById('lb').classList.remove('active');
+    });
+  </script>
 </body>
 </html>
